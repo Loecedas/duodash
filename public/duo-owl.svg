@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- 身体 - 圆润的绿色形状 -->
+  <path d="M50 8 
+           C30 8, 15 20, 15 45 
+           C15 60, 20 75, 25 80 
+           C30 85, 40 88, 50 88 
+           C60 88, 70 85, 75 80 
+           C80 75, 85 60, 85 45 
+           C85 20, 70 8, 50 8 Z" 
+        fill="#58CC02"/>
+  
+  <!-- 头顶的两个小突起（耳朵） -->
+  <ellipse cx="28" cy="18" rx="8" ry="12" fill="#58CC02"/>
+  <ellipse cx="72" cy="18" rx="8" ry="12" fill="#58CC02"/>
+  
+  <!-- 左眼外圈 -->
+  <ellipse cx="36" cy="40" rx="14" ry="16" fill="#FFFFFF"/>
+  <!-- 左眼瞳孔 -->
+  <ellipse cx="36" cy="40" rx="5" ry="7" fill="#1C1C1C"/>
+  <!-- 左眼高光 -->
+  <circle cx="39" cy="36" r="2.5" fill="#FFFFFF"/>
+  
+  <!-- 右眼外圈 -->
+  <ellipse cx="64" cy="40" rx="14" ry="16" fill="#FFFFFF"/>
+  <!-- 右眼瞳孔 -->
+  <ellipse cx="64" cy="40" rx="5" ry="7" fill="#1C1C1C"/>
+  <!-- 右眼高光 -->
+  <circle cx="67" cy="36" r="2.5" fill="#FFFFFF"/>
+  
+  <!-- 小嘴/喙 -->
+  <path d="M44 58 Q50 64 56 58 L50 54 Z" fill="#FF9600"/>
+  
+  <!-- 脚 -->
+  <ellipse cx="38" cy="85" rx="6" ry="4" fill="#FF9600"/>
+  <ellipse cx="62" cy="85" rx="6" ry="4" fill="#FF9600"/>
+</svg>
