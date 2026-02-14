@@ -20,6 +20,7 @@ const COMPRESSIBLE_TYPES = new Set([
 function isCompressible(contentType: string | null): boolean {
   if (!contentType) return false;
   const type = contentType.split(';', 1)[0].trim().toLowerCase();
+  if (type === 'text/event-stream') return false;
   return type.startsWith('text/') || COMPRESSIBLE_TYPES.has(type);
 }
 
@@ -42,6 +43,8 @@ function isInCompressRange(size: number): boolean {
 export const onRequest: MiddlewareHandler = async function (context, next) {
   const { request } = context;
   const response = await next();
+  const isDev = typeof import.meta !== 'undefined' && import.meta.env?.DEV;
+  if (isDev) return response;
   const method = request.method;
 
   if (method !== 'GET' && method !== 'HEAD') return response;
