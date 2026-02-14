@@ -120,13 +120,13 @@ export function AchievementsSection({ data }: AchievementsSectionProps): React.R
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-2xl shadow-sm border-2 border-b-4 border-gray-200 overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border-2 border-b-4 border-gray-200 dark:border-slate-700 overflow-hidden">
+        <div className="px-5 py-4 border-b border-gray-100 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8">
               {renderIcon('trophy')}
             </div>
-            <h2 className="text-lg font-bold text-gray-800">奖项</h2>
+            <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">奖项</h2>
           </div>
           <div className="flex items-center gap-4">
             {/* 当前连续天数 */}
@@ -138,10 +138,10 @@ export function AchievementsSection({ data }: AchievementsSectionProps): React.R
             )}
 
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500 font-medium">
+              <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
                 {totalUnlocked}/{totalBadges}
               </span>
-              <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div className="w-20 h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-500"
                   style={{
@@ -181,7 +181,7 @@ export function AchievementsSection({ data }: AchievementsSectionProps): React.R
 
                     {!badge.unlocked && (
                       <div
-                        className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-sm"
+                        className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-sm"
                         style={{ backgroundColor: '#AFAFAF' }}
                       >
                         <svg className="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="currentColor">
@@ -192,7 +192,7 @@ export function AchievementsSection({ data }: AchievementsSectionProps): React.R
 
                     {badge.unlocked && (
                       <div
-                        className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-sm"
+                        className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-sm"
                         style={{ backgroundColor: DuoColors.featherGreen }}
                       >
                         <svg className="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="currentColor">
@@ -203,13 +203,13 @@ export function AchievementsSection({ data }: AchievementsSectionProps): React.R
                   </div>
 
                   <span
-                    className={`text-xs font-medium text-center leading-tight ${badge.unlocked ? 'text-gray-700' : 'text-gray-400'}`}
+                    className={`text-xs font-medium text-center leading-tight ${badge.unlocked ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-600'}`}
                   >
                     {badge.name}
                   </span>
 
                   {!badge.unlocked && (
-                    <span className="text-[10px] text-gray-400">
+                    <span className="text-[10px] text-gray-400 dark:text-gray-600">
                       {Math.round(badge.progress * 100)}%
                     </span>
                   )}
@@ -221,27 +221,23 @@ export function AchievementsSection({ data }: AchievementsSectionProps): React.R
 
         <div
           className={`
-            grid transition-all duration-300 ease-in-out border-t border-gray-100
+            grid transition-all duration-300 ease-in-out border-t border-gray-100 dark:border-slate-700
             ${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 border-t-0'}
           `}
         >
           <div className="overflow-hidden">
              {displayedBadge && (
-              <div className="p-4 sm:p-5 bg-gray-50/80">
+              <div className="p-4 sm:p-5 bg-gray-50/80 dark:bg-slate-800/80">
               <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                 <div className="flex items-start gap-4 flex-1 min-w-0">
                   <div
-                    className="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{
-                      backgroundColor: displayedBadge.unlocked
-                        ? TIER_STYLES[displayedBadge.tier].bgLight
-                        : '#F5F5F5',
-                      borderWidth: '3px',
-                      borderStyle: 'solid',
-                      borderColor: displayedBadge.unlocked
-                        ? TIER_STYLES[displayedBadge.tier].border
-                        : '#E5E5E5',
-                    }}
+                    className={`w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0 border-[3px] border-solid ${
+                      !displayedBadge.unlocked ? 'bg-[#F5F5F5] border-[#E5E5E5] dark:bg-gray-700 dark:border-gray-600' : ''
+                    }`}
+                    style={displayedBadge.unlocked ? {
+                      backgroundColor: TIER_STYLES[displayedBadge.tier].bgLight,
+                      borderColor: TIER_STYLES[displayedBadge.tier].border
+                    } : undefined}
                   >
                     <div className={`w-10 h-10 ${displayedBadge.unlocked ? '' : 'opacity-30 grayscale'}`}>
                       {renderIcon(displayedBadge.icon)}
@@ -250,7 +246,7 @@ export function AchievementsSection({ data }: AchievementsSectionProps): React.R
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-bold text-gray-800">{displayedBadge.name}</h3>
+                      <h3 className="font-bold text-gray-800 dark:text-white">{displayedBadge.name}</h3>
                       <span
                         className="text-xs px-2 py-0.5 rounded-full text-white"
                         style={{ backgroundColor: TIER_STYLES[displayedBadge.tier].bg }}
@@ -269,18 +265,18 @@ export function AchievementsSection({ data }: AchievementsSectionProps): React.R
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-500 mt-0.5">{displayedBadge.description}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{displayedBadge.description}</p>
                   </div>
                 </div>
 
                 <div className="sm:w-64 flex-shrink-0">
                   <div className="flex items-center justify-between text-sm mb-1.5">
-                    <span className="text-gray-500">进度</span>
-                    <span className="font-medium text-gray-700">
+                    <span className="text-gray-500 dark:text-gray-400">进度</span>
+                    <span className="font-medium text-gray-700 dark:text-gray-200">
                       {displayedBadge.current.toLocaleString()} / {displayedBadge.threshold.toLocaleString()} {displayedBadge.unit}
                     </span>
                   </div>
-                  <div className="h-2.5 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="h-2.5 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500"
                       style={{
@@ -293,14 +289,14 @@ export function AchievementsSection({ data }: AchievementsSectionProps): React.R
                   </div>
 
                   {displayedBadge.unlocked && displayedBadge.unlockedDate && (
-                    <div className="text-xs text-gray-400 mt-2 flex items-center gap-1">
+                    <div className="text-xs text-gray-400 dark:text-gray-500 mt-2 flex items-center gap-1">
                       <div className="w-4 h-4">{renderIcon('calendar')}</div>
                       <span>达成于 {displayedBadge.unlockedDate}</span>
                     </div>
                   )}
 
                   {!displayedBadge.unlocked && (
-                    <div className="text-xs text-gray-400 mt-2">
+                    <div className="text-xs text-gray-400 dark:text-gray-500 mt-2">
                       还差 {(displayedBadge.threshold - displayedBadge.current).toLocaleString()} {displayedBadge.unit}
                     </div>
                   )}

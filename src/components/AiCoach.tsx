@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { UserData } from '../types';
-import { analyzeUserStats, getAiInfo } from '../services/geminiService';
+import { analyzeUserStats } from '../services/geminiService';
 import ReactMarkdown from 'react-markdown';
 
 interface AiCoachProps {
@@ -10,7 +10,7 @@ interface AiCoachProps {
 export function AiCoach({ userData }: AiCoachProps): React.ReactElement {
   const [analysis, setAnalysis] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [aiInfo, setAiInfo] = useState({ provider: 'loading...', model: '' });
+
   const [shouldAutoFetch, setShouldAutoFetch] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
@@ -22,13 +22,9 @@ export function AiCoach({ userData }: AiCoachProps): React.ReactElement {
     async function fetchAnalysis(): Promise<void> {
       if (cancelled) return;
       setLoading(true);
-      const [result, info] = await Promise.all([
-        analyzeUserStats(userData),
-        getAiInfo()
-      ]);
+      const result = await analyzeUserStats(userData);
       if (!cancelled) {
         setAnalysis(result);
-        setAiInfo(info);
         setLoading(false);
       }
     }
@@ -107,9 +103,7 @@ export function AiCoach({ userData }: AiCoachProps): React.ReactElement {
           </div>
         </div>
         <div className="mt-auto pt-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <div className="text-xs text-gray-600 font-bold order-2 sm:order-1">
-            {aiInfo.provider}: {aiInfo.model}
-          </div>
+
           <button
             onClick={() => {
               setLoading(true);
