@@ -296,13 +296,13 @@ export function DuoDashApp(): React.ReactElement {
 
   if (loading && !userData) {
     return (
-      <div className="min-h-screen bg-[#235390] flex items-center justify-center p-4">
-        <div className="bg-white rounded-3xl shadow-xl p-12 text-center">
-          <img src="/duo-owl.svg" alt="Duo" width="96" height="96" className="w-24 h-24 mx-auto mb-6 animate-bounce" />
-          <h2 className="text-2xl font-bold text-gray-700 mb-4">正在加载数据...</h2>
-          <p className="text-gray-500">正在连接 Duolingo API</p>
-        </div>
-      </div>
+       <div className="min-h-screen bg-[#235390] flex items-center justify-center p-4">
+         <div className="bg-white rounded-3xl shadow-xl p-12 text-center">
+           <img src="/green-owl.svg" alt="Duo" width="96" height="96" className="w-24 h-24 mx-auto mb-6 animate-bounce" />
+           <h2 className="text-2xl font-bold text-gray-700 mb-4">正在加载数据...</h2>
+           <p className="text-gray-500">正在连接 Duolingo API</p>
+         </div>
+       </div>
     );
   }
 
