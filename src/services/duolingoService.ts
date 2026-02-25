@@ -38,6 +38,9 @@ function getCachedDateTimestamp(dateStr: string): number {
  * 为了保证一致性，默认使用 'Asia/Shanghai' 时区
  */
 function toLocalDateKey(date: Date, timeZone: string = DEFAULT_TIMEZONE): string {
+  // 防御性检查：如果是无效日期，返回兜底日期，防止 Intl 崩溃
+  if (!date || isNaN(date.getTime())) return '1970-01-01';
+
   try {
     if (timeZone === DEFAULT_TIMEZONE) {
       return DATE_FORMATTER.format(date);
@@ -144,6 +147,23 @@ function calcDaysSince(createdAt: Date): number {
 }
 
 function resolveTierIndex(rawAny: any, rawData: DuolingoRawUser): number {
+  // 优先从手动注入的 _leaderboardTier 获取（来自 fields 请求）
+  if (rawAny._leaderboardTier !== undefined && rawAny._leaderboardTier >= 0) return rawAny._leaderboardTier;
+
+  // 其次从专用排行榜 API 获取（覆盖多种可能的响应结构）
+  const lb = rawAny._leaderboard as any;
+  if (lb !== undefined && lb !== null) {
+    // 格式1: { active_leaderboard: { tier: N } }
+    if (lb.active_leaderboard?.tier !== undefined) return lb.active_leaderboard.tier;
+    // 格式2: { tier: N }
+    if (lb.tier !== undefined && lb.tier >= 0) return lb.tier;
+    // 格式3: { data: { tier: N } }
+    if (lb.data?.tier !== undefined) return lb.data.tier;
+    // 格式4: { ranked_users: [{ tier: N }] }
+    if (Array.isArray(lb.ranked_users) && lb.ranked_users[0]?.tier !== undefined)
+      return lb.ranked_users[0].tier;
+  }
+  // 回退到旧字段
   if (rawAny.tier !== undefined && rawAny.tier >= 0 && rawAny.tier <= 10) return rawAny.tier;
   if (rawAny.trackingProperties?.league_tier !== undefined) return rawAny.trackingProperties.league_tier;
   if (rawAny.trackingProperties?.leaderboard_league !== undefined) return rawAny.trackingProperties.leaderboard_league;
@@ -195,7 +215,7 @@ function resolveStreakExtendedTime(
   if (rawData.calendar?.length) {
     const todayStr = new Date().toDateString();
     const todayEvents = rawData.calendar
-      .filter(e => new Date(e.datetime).toDateString() === todayStr)
+      .filter(e => e && e.datetime && new Date(e.datetime).toDateString() === todayStr)
       .sort((a, b) => a.datetime - b.datetime);
     if (todayEvents.length > 0) {
       return new Date(todayEvents[0].datetime)
@@ -205,7 +225,7 @@ function resolveStreakExtendedTime(
 
   if (rawAny.xpGains?.length) {
     const todayGains = rawAny.xpGains
-      .filter((g: any) => g.time * 1000 >= localTodayStart)
+      .filter((g: any) => g && typeof g.time === 'number' && g.time * 1000 >= localTodayStart)
       .sort((a: any, b: any) => a.time - b.time);
     if (todayGains.length > 0) {
       return new Date(todayGains[0].time * 1000)
@@ -230,7 +250,12 @@ export function transformDuolingoData(rawData: DuolingoRawUser): UserData {
   const rawAny = rawData as any;
 
   const streak = rawData.site_streak ?? rawData.streak ?? 0;
-  const gems = rawData.gemsTotalCount || rawData.totalGems || rawData.gems || rawData.tracking_properties?.gems || rawData.lingots || rawData.rupees || 0;
+
+  // 钻石数量：优先从手动注入的字段获取（来自 inventory 或 fields 请求）
+  const gems = rawAny._inventoryGems ?? rawAny._fieldsData?.gems ?? rawAny._inventory?.gems
+    ?? rawAny._inventory?.lingots ?? rawAny._inventory?.gem_count
+    ?? rawData.gemsTotalCount ?? rawData.totalGems ?? rawData.gems
+    ?? rawData.tracking_properties?.gems ?? rawData.lingots ?? rawData.rupees ?? 0;
 
   let totalXp = rawData.total_xp ?? rawData.totalXp ?? 0;
   if (totalXp === 0) totalXp = sumPoints(rawData.languages);
@@ -315,7 +340,10 @@ export function transformDuolingoData(rawData: DuolingoRawUser): UserData {
   const timeByDate = new Map<string, number>();
 
   function addCalendarEvent(event: { datetime: number; improvement?: number }): void {
-    const dateKey = toLocalDateKey(new Date(event.datetime));
+    if (!event || !event.datetime) return;
+    const d = new Date(event.datetime);
+    if (isNaN(d.getTime())) return;
+    const dateKey = toLocalDateKey(d);
     const improvement = event.improvement || 0;
     xpByDate.set(dateKey, (xpByDate.get(dateKey) || 0) + improvement);
     timeByDate.set(dateKey, (timeByDate.get(dateKey) || 0) + Math.ceil((improvement || 10) / 3));

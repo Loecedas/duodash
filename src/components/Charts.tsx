@@ -96,10 +96,12 @@ export function HeatmapChart({ data }: HeatmapChartProps): React.ReactElement {
     const currentYear = new Date().getFullYear();
 
     for (const d of data) {
+      if (!d.date) continue;
       xpM.set(d.date, d.xp);
       timeM.set(d.date, d.time);
-      const year = new Date(d.date).getFullYear();
-      if (year > 2010 && year <= currentYear) {
+      const yearStr = d.date.split('-')[0];
+      const year = parseInt(yearStr);
+      if (!isNaN(year) && year > 2010 && year <= currentYear) {
         yearsSet.add(year);
       }
     }
@@ -408,7 +410,10 @@ export function HeatmapChart({ data }: HeatmapChartProps): React.ReactElement {
                   <div className="text-center px-2">
                     <div className="font-bold text-sm">{tooltip.date}</div>
                     <div className="text-[10px] text-gray-500">
-                      {new Date(tooltip.date + 'T12:00:00').toLocaleDateString('zh-CN', { weekday: 'long' })}
+                      {(() => {
+                        const d = new Date(tooltip.date + 'T12:00:00');
+                        return isNaN(d.getTime()) ? '未知' : d.toLocaleDateString('zh-CN', { weekday: 'long' });
+                      })()}
                     </div>
                   </div>
                   <button
@@ -437,8 +442,8 @@ export function HeatmapChart({ data }: HeatmapChartProps): React.ReactElement {
                 {/* 箭头 */}
                 <div
                   className={`absolute w-0 h-0 border-l-[6px] border-r-[6px] border-transparent ${tooltip.showBelow
-                      ? 'top-[-6px] border-b-[6px] border-b-white'
-                      : 'bottom-[-6px] border-t-[6px] border-t-white'
+                    ? 'top-[-6px] border-b-[6px] border-b-white'
+                    : 'bottom-[-6px] border-t-[6px] border-t-white'
                     }`}
                   style={{
                     left: tooltip.alignment === 'left' ? '20%' : tooltip.alignment === 'right' ? '80%' : '50%',

@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import type { CacheEntry, UserData } from '../../types';
 import { transformDuolingoData } from '../../services/duolingoService';
 import { getEnv, jsonResponse, createAuthChecker } from '../../utils/api-helpers';
+import { writeFileSync } from 'node:fs';
 
 export const prerender = false;
 
@@ -14,11 +15,15 @@ const cache = new Map<string, CacheEntry<UserData>>();
 
 const checkToken = createAuthChecker(() => getEnv('API_SECRET_TOKEN'));
 
-async function fetchWithTimeout(url: string, headers: HeadersInit, timeoutMs = DEFAULT_TIMEOUT): Promise<{ data: unknown; status: number; text?: string }> {
+async function fetchWithTimeout(url: string, headers: HeadersInit, timeoutMs = DEFAULT_TIMEOUT, options: RequestInit = {}): Promise<{ data: unknown; status: number; text?: string }> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const res = await fetch(url, { headers, signal: controller.signal });
+    const res = await fetch(url, {
+      headers,
+      signal: controller.signal,
+      ...options
+    });
     clearTimeout(timeoutId);
     const text = await res.text();
     let data = null;
@@ -64,19 +69,20 @@ export const GET: APIRoute = async ({ request }) => {
 
   const cleanJwt = jwt ? jwt.trim() : '';
   const decodedJwt = cleanJwt ? (() => { try { return decodeURIComponent(cleanJwt); } catch { return cleanJwt; } })() : '';
+
   const authHeaders: HeadersInit = decodedJwt
-    ? { ...publicHeaders, 'Cookie': `jwt_token=${decodedJwt}` }
+    ? {
+      ...publicHeaders,
+      'Cookie': `jwt_token=${decodedJwt}`,
+      'Referer': 'https://www.duolingo.com/learn',
+      'Origin': 'https://www.duolingo.com',
+    }
     : publicHeaders;
 
   try {
     // 1. 获取公开基础数据
     const v2Url = `${DUOLINGO_BASE_URL}/2017-06-30/users?username=${username}`;
     const v2Result = await fetchWithTimeout(v2Url, publicHeaders);
-
-    console.log(`[DEBUG] Public V2 Status: ${v2Result.status}`);
-    if (v2Result.status !== 200) {
-      console.log(`[DEBUG] Public V2 Text: ${v2Result.text}`);
-    }
 
     const v2Raw = v2Result.data as any;
     const publicData = v2Raw?.users?.[0] || (v2Raw && !v2Raw.users ? v2Raw : null);
@@ -88,22 +94,23 @@ export const GET: APIRoute = async ({ request }) => {
     let userData: any = { ...publicData };
     const userId = publicData.id || publicData.user_id;
 
+    // 如果配置了 JWT，尝试获取 XP 历史
     if (decodedJwt && userId) {
-      // 2. XP 历史
-      const xpUrl = `${DUOLINGO_BASE_URL}/2017-06-30/users/${userId}/xp_summaries?startDate=1970-01-01`;
-      const xpResult = await fetchWithTimeout(xpUrl, authHeaders, 12000);
+      const xpResult = await fetchWithTimeout(
+        `${DUOLINGO_BASE_URL}/2017-06-30/users/${userId}/xp_summaries?startDate=1970-01-01`,
+        authHeaders,
+        12000
+      );
+
       if (xpResult.status === 200 && xpResult.data) {
         userData._xpSummaries = (xpResult.data as any).summaries;
-      } else {
-        console.log(`[DEBUG] XP Summaries failed: ${xpResult.status}`);
       }
 
-      // 3. 认证版 V2
-      const authV2Url = `${DUOLINGO_BASE_URL}/2017-06-30/users/${userId}`;
-      const authV2Result = await fetchWithTimeout(authV2Url, authHeaders);
-      if (authV2Result.status === 200 && authV2Result.data) {
-        userData = { ...userData, ...(authV2Result.data as object) };
-      }
+      /**
+       * 注意：Duolingo 已加强 API 安全校验。
+       * 目前 gems(钻石) 和 tier(联赛) 字段在公开接口已不可见，且在服务端直接访问认证路径常会被拦截。
+       * 故目前 dashboard 优先显示 site_streak, courses 等公开数据，gems 和 league 暂按降级显示处理。
+       */
     }
 
     const transformed = transformDuolingoData(userData);

@@ -181,6 +181,10 @@ export interface DuolingoRawUser {
   xpGains?: DuolingoXpGain[];
   _xpSummaries?: DuolingoXpSummary[];
   _leaderboardHistory?: unknown;
+  /** 来自 /inventory 端点的原始数据（服务端专用，钻石数量） */
+  _inventory?: unknown;
+  /** 来自 /leaderboards 端点的原始数据（服务端专用，联赛段位） */
+  _leaderboard?: unknown;
 }
 
 // XP Summary from API
