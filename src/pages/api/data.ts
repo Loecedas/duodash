@@ -8,25 +8,29 @@ export const prerender = false;
 const DUOLINGO_BASE_URL = 'https://www.duolingo.com';
 const CACHE_TTL = 30 * 60 * 1000;
 const MAX_CACHE_SIZE = 100;
-const DEFAULT_TIMEOUT = 8000; // 增加默认超时时间
+const DEFAULT_TIMEOUT = 10000;
 
 const cache = new Map<string, CacheEntry<UserData>>();
 
 const checkToken = createAuthChecker(() => getEnv('API_SECRET_TOKEN'));
 
-async function fetchWithTimeout(url: string, headers: HeadersInit, timeoutMs = DEFAULT_TIMEOUT): Promise<{ data: unknown; status: number }> {
+async function fetchWithTimeout(url: string, headers: HeadersInit, timeoutMs = DEFAULT_TIMEOUT): Promise<{ data: unknown; status: number; text?: string }> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const res = await fetch(url, { headers, signal: controller.signal });
     clearTimeout(timeoutId);
-    if (!res.ok) {
-      return { data: null, status: res.status };
+    const text = await res.text();
+    let data = null;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = null;
     }
-    return { data: await res.json(), status: res.status };
-  } catch {
+    return { data, status: res.status, text: text.substring(0, 1000) };
+  } catch (err: any) {
     clearTimeout(timeoutId);
-    return { data: null, status: 0 };
+    return { data: null, status: 0, text: err.message };
   }
 }
 
@@ -38,73 +42,68 @@ export const GET: APIRoute = async ({ request }) => {
   const username = getEnv('DUOLINGO_USERNAME');
   const jwt = getEnv('DUOLINGO_JWT');
 
-  if (!username || !jwt) {
+  if (!username) {
     return jsonResponse({ error: 'Not configured' }, 400);
   }
 
+  const url = new URL(request.url);
+  const forceRefresh = url.searchParams.get('force') === 'true';
+
   const cacheKey = `user:${username}`;
   const cached = cache.get(cacheKey);
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+  if (!forceRefresh && cached && Date.now() - cached.timestamp < CACHE_TTL) {
     return jsonResponse({ data: cached.data, cached: true }, 200, { cacheControl: 'private, max-age=60' });
   }
 
+  const publicHeaders: HeadersInit = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept': 'application/json, text/plain, */*',
+    'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+    'Referer': 'https://www.duolingo.com/',
+  };
+
+  const cleanJwt = jwt ? jwt.trim() : '';
+  const decodedJwt = cleanJwt ? (() => { try { return decodeURIComponent(cleanJwt); } catch { return cleanJwt; } })() : '';
+  const authHeaders: HeadersInit = decodedJwt
+    ? { ...publicHeaders, 'Cookie': `jwt_token=${decodedJwt}` }
+    : publicHeaders;
+
   try {
-    const headers: HeadersInit = {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      'Accept': 'application/json',
-      'Authorization': `Bearer ${jwt}`
-    };
-
-    // 1) 优先请求 V2（字段更全且稳定），失败再降级到 V1
+    // 1. 获取公开基础数据
     const v2Url = `${DUOLINGO_BASE_URL}/2017-06-30/users?username=${username}`;
-    const v2Result = await fetchWithTimeout(v2Url, headers, 10000);
+    const v2Result = await fetchWithTimeout(v2Url, publicHeaders);
 
-    // 检查是否为 JWT 过期错误
-    if (v2Result.status === 401 || v2Result.status === 403) {
-      return jsonResponse({
-        error: 'JWT Token 已过期或无效，请重新获取 Duolingo JWT Token',
-        code: 'JWT_EXPIRED'
-      }, 401);
+    console.log(`[DEBUG] Public V2 Status: ${v2Result.status}`);
+    if (v2Result.status !== 200) {
+      console.log(`[DEBUG] Public V2 Text: ${v2Result.text}`);
     }
 
-    const v2Raw = v2Result.data as { users?: any[] } | any;
-    const v2Data = v2Raw?.users?.[0] || v2Raw;
+    const v2Raw = v2Result.data as any;
+    const publicData = v2Raw?.users?.[0] || (v2Raw && !v2Raw.users ? v2Raw : null);
 
-    let userData = v2Data;
-    if (!userData) {
-      const v1Url = `${DUOLINGO_BASE_URL}/users/${username}`;
-      const v1Result = await fetchWithTimeout(v1Url, headers, 10000);
+    if (!publicData) {
+      return jsonResponse({ error: `Failed to fetch user data. Duolingo returned status ${v2Result.status}` }, 500);
+    }
 
-      if (v1Result.status === 401 || v1Result.status === 403) {
-        return jsonResponse({
-          error: 'JWT Token 已过期或无效，请重新获取 Duolingo JWT Token',
-          code: 'JWT_EXPIRED'
-        }, 401);
+    let userData: any = { ...publicData };
+    const userId = publicData.id || publicData.user_id;
+
+    if (decodedJwt && userId) {
+      // 2. XP 历史
+      const xpUrl = `${DUOLINGO_BASE_URL}/2017-06-30/users/${userId}/xp_summaries?startDate=1970-01-01`;
+      const xpResult = await fetchWithTimeout(xpUrl, authHeaders, 12000);
+      if (xpResult.status === 200 && xpResult.data) {
+        userData._xpSummaries = (xpResult.data as any).summaries;
+      } else {
+        console.log(`[DEBUG] XP Summaries failed: ${xpResult.status}`);
       }
 
-      userData = v1Result.data;
-    }
-
-    if (!userData) {
-      return jsonResponse({ error: 'Failed to fetch user data' }, 500);
-    }
-
-    const userId = userData.id || userData.user_id || userData.tracking_properties?.user_id;
-    if (userId) {
-      const xpResult = await fetchWithTimeout(
-        `${DUOLINGO_BASE_URL}/2017-06-30/users/${userId}/xp_summaries?startDate=1970-01-01`,
-        headers,
-        12000
-      );
-      const xpData = xpResult.data as { summaries?: unknown[] } | null;
-
-      if (xpData?.summaries) {
-        userData._xpSummaries = xpData.summaries;
+      // 3. 认证版 V2
+      const authV2Url = `${DUOLINGO_BASE_URL}/2017-06-30/users/${userId}`;
+      const authV2Result = await fetchWithTimeout(authV2Url, authHeaders);
+      if (authV2Result.status === 200 && authV2Result.data) {
+        userData = { ...userData, ...(authV2Result.data as object) };
       }
-    }
-
-    if (!userData || typeof userData !== 'object') {
-      return jsonResponse({ error: 'Received invalid user data from Duolingo' }, 502);
     }
 
     const transformed = transformDuolingoData(userData);
@@ -116,14 +115,9 @@ export const GET: APIRoute = async ({ request }) => {
     cache.set(cacheKey, { data: transformed, timestamp: Date.now() });
 
     return jsonResponse({ data: transformed }, 200, { cacheControl: 'private, max-age=60' });
+
   } catch (error: unknown) {
-    // 错误消息脱敏：移除可能包含的敏感信息
-    let message = error instanceof Error ? error.message : 'Unknown error';
-    message = message.replace(/[a-zA-Z0-9_-]{20,}/g, '[REDACTED]');
-    message = message.replace(/https?:\/\/[^\s]+/g, '[API_ENDPOINT]');
-    if (message.length > 100) {
-      message = message.substring(0, 100) + '...';
-    }
-    return jsonResponse({ error: message }, 500);
+    console.error(`[FATAL] Global Error:`, error);
+    return jsonResponse({ error: 'Internal Server Error' }, 500);
   }
 };
