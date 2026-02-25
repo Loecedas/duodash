@@ -221,11 +221,11 @@ export function HeatmapChart({ data }: HeatmapChartProps): React.ReactElement {
   // 导航到前一天或后一天
   function navigateDay(direction: -1 | 1): void {
     if (!tooltip) return;
-    
+
     const currentDate = new Date(tooltip.date);
     currentDate.setDate(currentDate.getDate() + direction);
     const newDateStr = toLocalDateStr(currentDate);
-    
+
     // 查找新日期的数据
     const dayData = allDates.find(d => d.dateStr === newDateStr);
     if (!dayData) return;
@@ -253,11 +253,11 @@ export function HeatmapChart({ data }: HeatmapChartProps): React.ReactElement {
   // 检查是否可以选择前一天/后一天
   function canNavigate(direction: -1 | 1): boolean {
     if (!tooltip) return false;
-    
+
     const currentDate = new Date(tooltip.date);
     currentDate.setDate(currentDate.getDate() + direction);
     const newDateStr = toLocalDateStr(currentDate);
-    
+
     return allDates.some(d => d.dateStr === newDateStr);
   }
 
@@ -408,7 +408,7 @@ export function HeatmapChart({ data }: HeatmapChartProps): React.ReactElement {
                   <div className="text-center px-2">
                     <div className="font-bold text-sm">{tooltip.date}</div>
                     <div className="text-[10px] text-gray-500">
-                      {new Date(tooltip.date).toLocaleDateString('zh-CN', { weekday: 'long' })}
+                      {new Date(tooltip.date + 'T12:00:00').toLocaleDateString('zh-CN', { weekday: 'long' })}
                     </div>
                   </div>
                   <button
@@ -419,7 +419,7 @@ export function HeatmapChart({ data }: HeatmapChartProps): React.ReactElement {
                     →
                   </button>
                 </div>
-                
+
                 {/* 数据展示 */}
                 <div className="grid grid-cols-2 gap-2">
                   <div className="bg-gray-50 rounded-lg p-2 text-center">
@@ -436,11 +436,10 @@ export function HeatmapChart({ data }: HeatmapChartProps): React.ReactElement {
 
                 {/* 箭头 */}
                 <div
-                  className={`absolute w-0 h-0 border-l-[6px] border-r-[6px] border-transparent ${
-                    tooltip.showBelow
+                  className={`absolute w-0 h-0 border-l-[6px] border-r-[6px] border-transparent ${tooltip.showBelow
                       ? 'top-[-6px] border-b-[6px] border-b-white'
                       : 'bottom-[-6px] border-t-[6px] border-t-white'
-                  }`}
+                    }`}
                   style={{
                     left: tooltip.alignment === 'left' ? '20%' : tooltip.alignment === 'right' ? '80%' : '50%',
                     transform: 'translateX(-50%)'

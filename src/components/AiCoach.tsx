@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { UserData } from '../types';
 import { analyzeUserStats } from '../services/geminiService';
 import ReactMarkdown from 'react-markdown';
@@ -13,6 +13,12 @@ export function AiCoach({ userData }: AiCoachProps): React.ReactElement {
 
   const [shouldAutoFetch, setShouldAutoFetch] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => { isMountedRef.current = false; };
+  }, []);
 
   useEffect(() => {
     if (!userData || !shouldAutoFetch) return;
@@ -106,12 +112,15 @@ export function AiCoach({ userData }: AiCoachProps): React.ReactElement {
 
           <button
             onClick={() => {
+              if (!isMountedRef.current) return;
               setLoading(true);
               analyzeUserStats(userData)
                 .then(result => {
+                  if (!isMountedRef.current) return;
                   setAnalysis(result);
                 })
                 .catch(() => {
+                  if (!isMountedRef.current) return;
                   // 刷新失败时保留之前的分析结果，只显示临时提示
                   if (analysis) {
                     console.warn('AI 刷新失败，保留现有分析');
@@ -120,6 +129,7 @@ export function AiCoach({ userData }: AiCoachProps): React.ReactElement {
                   }
                 })
                 .finally(() => {
+                  if (!isMountedRef.current) return;
                   setLoading(false);
                 });
             }}

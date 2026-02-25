@@ -72,9 +72,10 @@ function getStartOfDayInTimezone(date: Date, timeZone: string = DEFAULT_TIMEZONE
   const parts = formatter.formatToParts(date);
   const offsetPart = parts.find(p => p.type === 'timeZoneName')?.value || '+08:00';
   // 解析偏移量，如 "GMT+8" -> "+08:00"
-  const offsetMatch = offsetPart.match(/GMT([+-])(\d+)/);
+  // 支持整点偏移 (GMT+8) 和半小时偏移 (GMT+5:30)
+  const offsetMatch = offsetPart.match(/GMT([+-])(\d+)(?::(\d+))?/);
   const offset = offsetMatch
-    ? `${offsetMatch[1]}${offsetMatch[2].padStart(2, '0')}:00`
+    ? `${offsetMatch[1]}${offsetMatch[2].padStart(2, '0')}:${(offsetMatch[3] || '0').padStart(2, '0')}`
     : '+08:00';
   return new Date(`${dateKey}T00:00:00${offset}`).getTime();
 }
@@ -135,7 +136,10 @@ function getMonday(date: Date, timeZone: string = DEFAULT_TIMEZONE): Date {
 }
 
 function calcDaysSince(createdAt: Date): number {
-  const diffMs = getStartOfDay(new Date()).getTime() - getStartOfDay(createdAt).getTime();
+  // 使用与其他日期处理一致的 Asia/Shanghai 时区，避免在 UTC 服务器上注册天数计算错误
+  const todayKey = toLocalDateKey(new Date());
+  const createdKey = toLocalDateKey(createdAt);
+  const diffMs = new Date(todayKey).getTime() - new Date(createdKey).getTime();
   return Math.max(0, Math.floor(diffMs / MS_PER_DAY));
 }
 
@@ -267,7 +271,8 @@ export function transformDuolingoData(rawData: DuolingoRawUser): UserData {
       const exists = courses.some(c =>
         c.title === v1c.title ||
         c.learningLanguage === v1c.learningLanguage ||
-        (c.id && v1c.id && c.id.includes(v1c.id))
+        // 只在两者 id 均非空时做包含检查，避免空字符串 includes('') 永远为 true
+        (c.id && v1c.id && v1c.id.length > 0 && c.id.includes(v1c.id))
       );
       if (!exists) courses.push(v1c);
     }
@@ -482,10 +487,6 @@ export async function fetchDuolingoData(_username: string, _jwt: string): Promis
 
   if (!response.ok) {
     throw new Error(result.error || 'Fetch failed');
-  }
-
-  if (result.code === 'JWT_EXPIRED') {
-     throw new Error('JWT_EXPIRED');
   }
 
   return result.data as UserData;
