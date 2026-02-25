@@ -243,7 +243,7 @@ export function DuoDashApp(): React.ReactElement {
     setError(null);
     try {
       const { fetchDuolingoData } = await import('../services/duolingoService');
-      const data = await fetchDuolingoData(username, jwt);
+      const data = await fetchDuolingoData();
       setUserData(data);
       setShowLogin(false);
     } catch {
