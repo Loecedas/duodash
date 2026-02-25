@@ -2,7 +2,6 @@ import type { APIRoute } from 'astro';
 import type { CacheEntry, UserData } from '../../types';
 import { transformDuolingoData } from '../../services/duolingoService';
 import { getEnv, jsonResponse, createAuthChecker } from '../../utils/api-helpers';
-import { writeFileSync } from 'node:fs';
 
 export const prerender = false;
 
@@ -61,7 +60,7 @@ export const GET: APIRoute = async ({ request }) => {
   }
 
   const publicHeaders: HeadersInit = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
     'Accept': 'application/json, text/plain, */*',
     'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
     'Referer': 'https://www.duolingo.com/',
@@ -70,12 +69,17 @@ export const GET: APIRoute = async ({ request }) => {
   const cleanJwt = jwt ? jwt.trim() : '';
   const decodedJwt = cleanJwt ? (() => { try { return decodeURIComponent(cleanJwt); } catch { return cleanJwt; } })() : '';
 
+  // 完整的 Web App 请求头 - 与探测脚本一致（探测脚本确认这套 headers 能通过 403 限制）
   const authHeaders: HeadersInit = decodedJwt
     ? {
       ...publicHeaders,
       'Cookie': `jwt_token=${decodedJwt}`,
       'Referer': 'https://www.duolingo.com/learn',
       'Origin': 'https://www.duolingo.com',
+      'Duolingo-Platform': 'web',
+      'app-platform': 'WebPlayer',
+      'x-duolingo-language': 'zh-CN',
+      'x-duolingo-referrer': 'https://www.duolingo.com/learn',
     }
     : publicHeaders;
 
@@ -94,23 +98,50 @@ export const GET: APIRoute = async ({ request }) => {
     let userData: any = { ...publicData };
     const userId = publicData.id || publicData.user_id;
 
-    // 如果配置了 JWT，尝试获取 XP 历史
+    // 有 JWT 时并行获取：XP 历史 + gems + leaderboard tier
     if (decodedJwt && userId) {
-      const xpResult = await fetchWithTimeout(
-        `${DUOLINGO_BASE_URL}/2017-06-30/users/${userId}/xp_summaries?startDate=1970-01-01`,
-        authHeaders,
-        12000
-      );
+      const [xpResult, gemsResult, tierResult] = await Promise.all([
+        // XP 历史
+        fetchWithTimeout(
+          `${DUOLINGO_BASE_URL}/2017-06-30/users/${userId}/xp_summaries?startDate=1970-01-01`,
+          authHeaders, 12000
+        ),
+        // gems/lingots（需要 App headers 才能返回）
+        fetchWithTimeout(
+          `${DUOLINGO_BASE_URL}/2017-06-30/users/${userId}?fields=gems,lingots`,
+          authHeaders, 8000
+        ),
+        // leaderboard_league via trackingProperties
+        fetchWithTimeout(
+          `${DUOLINGO_BASE_URL}/2017-06-30/users/${userId}?fields=trackingProperties`,
+          authHeaders, 8000
+        ),
+      ]);
 
       if (xpResult.status === 200 && xpResult.data) {
         userData._xpSummaries = (xpResult.data as any).summaries;
       }
 
-      /**
-       * 注意：Duolingo 已加强 API 安全校验。
-       * 目前 gems(钻石) 和 tier(联赛) 字段在公开接口已不可见，且在服务端直接访问认证路径常会被拦截。
-       * 故目前 dashboard 优先显示 site_streak, courses 等公开数据，gems 和 league 暂按降级显示处理。
-       */
+      // 注入 gems 真实数据
+      if (gemsResult.status === 200 && gemsResult.data) {
+        const gemsData = gemsResult.data as any;
+        if (typeof gemsData.gems === 'number') {
+          userData._inventoryGems = gemsData.gems;
+        } else if (typeof gemsData.lingots === 'number') {
+          userData._inventoryGems = gemsData.lingots;
+        }
+      }
+
+      // 注入 leaderboard tier 真实数据
+      if (tierResult.status === 200 && tierResult.data) {
+        const tierData = tierResult.data as any;
+        const tracking = tierData.trackingProperties;
+        if (tracking && typeof tracking.leaderboard_league === 'number') {
+          userData._leaderboardTier = tracking.leaderboard_league;
+        } else if (tracking && typeof tracking.league_tier === 'number') {
+          userData._leaderboardTier = tracking.league_tier;
+        }
+      }
     }
 
     const transformed = transformDuolingoData(userData);

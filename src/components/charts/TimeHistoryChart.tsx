@@ -44,7 +44,8 @@ function TimeHistoryChart({ data }: TimeHistoryChartProps): React.ReactElement {
             <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 10 }} width={40} domain={[0, 'auto']} />
             <Tooltip
               contentStyle={tooltipStyle}
-              formatter={(value: number) => [`${value} 分钟`, '学习时间']}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              formatter={(value: unknown) => [`${value as number} 分钟`, '学习时间'] as any}
             />
             <Area
               type="monotone"

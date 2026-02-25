@@ -99,11 +99,6 @@ function parseSummaryDateKey(date: number | string): string | null {
   return toLocalDateKey(utcDate);
 }
 
-function getStartOfDay(date: Date): Date {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
 
 /**
  * 获取指定日期所在自然周的周一（一周的第一天）
@@ -252,7 +247,9 @@ export function transformDuolingoData(rawData: DuolingoRawUser): UserData {
   const streak = rawData.site_streak ?? rawData.streak ?? 0;
 
   // 钻石数量：优先从手动注入的字段获取（来自 inventory 或 fields 请求）
-  const gems = rawAny._inventoryGems ?? rawAny._fieldsData?.gems ?? rawAny._inventory?.gems
+  // gems/钻石：通过添加 Duolingo-Platform: web 等 App headers 后，API 现在能正确返回真实数据
+  // _inventoryGems 由 data.ts 注入，来自 /users/{id}?fields=gems,lingots 端点
+  const gems: number = rawAny._inventoryGems ?? rawAny._fieldsData?.gems ?? rawAny._inventory?.gems
     ?? rawAny._inventory?.lingots ?? rawAny._inventory?.gem_count
     ?? rawData.gemsTotalCount ?? rawData.totalGems ?? rawData.gems
     ?? rawData.tracking_properties?.gems ?? rawData.lingots ?? rawData.rupees ?? 0;
@@ -413,7 +410,7 @@ export function transformDuolingoData(rawData: DuolingoRawUser): UserData {
 
   const tierIndex = resolveTierIndex(rawAny, rawData);
   const leagueName = (tierIndex >= 0 && tierIndex < LEAGUE_TIERS.length)
-    ? LEAGUE_TIERS[tierIndex] : "暂无数据";
+    ? LEAGUE_TIERS[tierIndex] : "—";
 
   const { dateStr: creationDateStr, ageDays: accountAgeDays } = parseCreationDate(creationTs, rawData.created);
 
@@ -509,7 +506,7 @@ export function transformDuolingoData(rawData: DuolingoRawUser): UserData {
  * 客户端使用此函数从本服务 API 获取数据
  * 替代了之前直接访问 Duolingo 的逻辑，解决了 CORS 和 安全问题
  */
-export async function fetchDuolingoData(_username: string, _jwt: string): Promise<UserData> {
+export async function fetchDuolingoData(): Promise<UserData> {
   const response = await fetch('/api/data');
   const result = await response.json();
 

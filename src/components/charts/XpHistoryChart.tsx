@@ -36,7 +36,8 @@ function XpHistoryChart({ data }: XpHistoryChartProps): React.ReactElement {
             <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 10 }} width={40} domain={[0, 'auto']} />
             <Tooltip
               contentStyle={tooltipStyle}
-              formatter={(value: number) => [`${value} XP`, '经验值']}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              formatter={(value: unknown) => [`${value as number} XP`, '经验値'] as any}
             />
             <Area
               type="monotone"
