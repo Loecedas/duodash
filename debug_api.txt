@@ -1,8 +1,0 @@
-inventory_status=404
-inventory_text={"details": "https://www.duolingo.com/2017-06-30/users/960297331/inventory"}
-leaderboard_status=404
-leaderboard_text=<!doctype html>
-<html lang=en>
-<title>404 Not Found</title>
-<h1>Not Found</h1>
-<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
