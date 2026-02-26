@@ -1,3 +1,3 @@
 export { ShareModal } from './ShareModal';
-export { useSnapdom } from './useSnapdom';
+export { useScreenshot } from './useScreenshot';
 export * from './cards';

@@ -102,6 +102,7 @@ export function DuoDashApp(): React.ReactElement {
   const [showShareModal, setShowShareModal] = useState(false);
   const [themeMode, setThemeMode] = useState<ThemeMode>('system');
   const heatmapSentinelRef = useRef<HTMLDivElement | null>(null);
+  const dashboardRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     try {
@@ -382,7 +383,7 @@ export function DuoDashApp(): React.ReactElement {
         onThemeChange={setThemeMode}
       />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main ref={dashboardRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <PageHeader userData={userData} viewData={viewData} />
 
         <div className="space-y-6">
@@ -470,6 +471,10 @@ export function DuoDashApp(): React.ReactElement {
           isOpen={showShareModal}
           onClose={() => setShowShareModal(false)}
           userData={userData}
+          dashboardRef={dashboardRef}
+          onPrepareFull={() => {
+            setShouldRenderHeatmap(true);
+          }}
         />
       )}
     </div>

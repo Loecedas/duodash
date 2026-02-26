@@ -1,15 +1,17 @@
 import React, { useState, useRef, useCallback } from 'react';
 import type { UserData } from '../../types';
 import { MilestoneCard, WeeklySummaryCard } from './cards';
-import { useSnapdom } from './useSnapdom';
+import { useScreenshot } from './useScreenshot';
 
 interface ShareModalProps {
   isOpen: boolean;
   onClose: () => void;
   userData: UserData;
+  dashboardRef: React.RefObject<HTMLDivElement | null>;
+  onPrepareFull?: () => void;
 }
 
-type CardType = 'milestone-streak' | 'milestone-xp' | 'weekly';
+type CardType = 'milestone-streak' | 'milestone-xp' | 'weekly' | 'full';
 
 const CARD_OPTIONS: { type: CardType; label: string; icon: React.ReactNode }[] = [
   {
@@ -40,22 +42,47 @@ const CARD_OPTIONS: { type: CardType; label: string; icon: React.ReactNode }[] =
       </svg>
     ),
   },
+  {
+    type: 'full',
+    label: '全屏数据',
+    icon: (
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+        <line x1="3" y1="9" x2="21" y2="9" />
+        <line x1="9" y1="21" x2="9" y2="9" />
+      </svg>
+    ),
+  },
 ];
 
-export function ShareModal({ isOpen, onClose, userData }: ShareModalProps): React.ReactElement | null {
+export function ShareModal({ isOpen, onClose, userData, dashboardRef, onPrepareFull }: ShareModalProps): React.ReactElement | null {
   const [selectedCard, setSelectedCard] = useState<CardType>('milestone-streak');
   const cardRef = useRef<HTMLDivElement>(null);
-  const { isExporting, exportToPng } = useSnapdom();
+  const { isExporting, capture } = useScreenshot();
 
   const handleExport = useCallback(async () => {
-    if (!cardRef.current) return;
+    const targetRef = selectedCard === 'full' ? dashboardRef : cardRef;
+    if (!targetRef.current) return;
+
     const filenames: Record<CardType, string> = {
       'milestone-streak': 'duodash-streak',
       'milestone-xp': 'duodash-xp',
       'weekly': 'duodash-weekly',
+      'full': 'duodash-full',
     };
-    await exportToPng(cardRef.current, { filename: filenames[selectedCard], scale: 3 });
-  }, [selectedCard, exportToPng]);
+
+    if (selectedCard === 'full' && onPrepareFull) {
+      onPrepareFull();
+      // Wait for rendering and lazy components (Heatmap)
+      await new Promise(resolve => setTimeout(resolve, 800));
+    }
+
+    await capture(targetRef.current, {
+      filename: filenames[selectedCard],
+      pixelRatio: selectedCard === 'full' ? 2 : 3, // Full dashboard is huge, 2x is enough
+      backgroundColor: '#f0f4f8'
+    });
+  }, [selectedCard, capture, dashboardRef, onPrepareFull]);
 
   const getWeeklyData = useCallback(() => {
     // 使用自然周数据（周一到周日）
@@ -122,11 +149,10 @@ export function ShareModal({ isOpen, onClose, userData }: ShareModalProps): Reac
               <button
                 key={opt.type}
                 onClick={() => setSelectedCard(opt.type)}
-                className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer border-2 ${
-                  selectedCard === opt.type
-                    ? 'bg-[#58cc02] text-white border-[#58cc02]'
-                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
-                }`}
+                className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer border-2 ${selectedCard === opt.type
+                  ? 'bg-[#58cc02] text-white border-[#58cc02]'
+                  : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                  }`}
               >
                 {opt.icon}
                 <span className="whitespace-nowrap">{opt.label}</span>
@@ -152,6 +178,17 @@ export function ShareModal({ isOpen, onClose, userData }: ShareModalProps): Reac
                 dateRange={weeklyData.dateRange}
                 isFutureFlags={weeklyData.isFutureFlags}
               />
+            )}
+            {selectedCard === 'full' && (
+              <div className="flex flex-col items-center justify-center p-8 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 text-gray-400">
+                <svg className="w-12 h-12 mb-3 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <line x1="3" y1="9" x2="21" y2="9" />
+                  <line x1="9" y1="21" x2="9" y2="9" />
+                </svg>
+                <p className="font-bold text-sm">将截取整个仪表盘界面</p>
+                <p className="text-xs mt-1">包含所有图表、统计和连胜数据</p>
+              </div>
             )}
           </div>
 

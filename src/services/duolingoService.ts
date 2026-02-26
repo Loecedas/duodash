@@ -38,26 +38,19 @@ function getCachedDateTimestamp(dateStr: string): number {
  * 为了保证一致性，默认使用 'Asia/Shanghai' 时区
  */
 function toLocalDateKey(date: Date, timeZone: string = DEFAULT_TIMEZONE): string {
-  // 防御性检查：如果是无效日期，返回兜底日期，防止 Intl 崩溃
   if (!date || isNaN(date.getTime())) return '1970-01-01';
 
   try {
-    if (timeZone === DEFAULT_TIMEZONE) {
-      return DATE_FORMATTER.format(date);
-    }
-    const formatter = new Intl.DateTimeFormat('en-CA', {
+    return new Intl.DateTimeFormat('en-CA', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
       timeZone
-    });
-    return formatter.format(date);
-  } catch {
-    // 降级方案：如果时区无效，回退到原始逻辑（服务器本地时间）
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    }).format(date);
+  } catch (e) {
+    // Fallback if timezone is invalid or Intl fails
+    const offsetDate = new Date(date.getTime() + (timeZone === 'Asia/Shanghai' ? 8 : 0) * 3600000);
+    return offsetDate.toISOString().split('T')[0];
   }
 }
 
@@ -90,13 +83,16 @@ function getStartOfDayInTimezone(date: Date, timeZone: string = DEFAULT_TIMEZONE
  */
 function parseSummaryDateKey(date: number | string): string | null {
   if (typeof date === 'number') {
-    const d = new Date(date * 1000);
+    // Duolingo timestamps are usually in seconds
+    const d = new Date(date < 10000000000 ? date * 1000 : date);
     if (isNaN(d.getTime())) return null;
     return toLocalDateKey(d);
   }
-  const utcDate = new Date(String(date).replace(/\//g, '-') + 'T00:00:00Z');
-  if (isNaN(utcDate.getTime())) return null;
-  return toLocalDateKey(utcDate);
+  // Standardize string date parsing
+  const dateStr = String(date).replace(/\//g, '-');
+  const d = new Date(dateStr.includes('T') ? dateStr : `${dateStr}T00:00:00Z`);
+  if (isNaN(d.getTime())) return null;
+  return toLocalDateKey(d);
 }
 
 
