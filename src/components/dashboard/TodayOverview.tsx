@@ -40,13 +40,13 @@ export function TodayOverview({ userData, seq }: TodayOverviewProps): React.Reac
       <h2 className="text-gray-700 font-bold text-lg mb-3">今日概览</h2>
       <div className="flex flex-col gap-3">
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-[#58cc02]/10 rounded-xl p-3 text-center">
+          <div className="bg-[#58cc02]/10 dark:bg-[#58cc02]/20 rounded-xl p-3 text-center">
             <div className="text-2xl font-extrabold text-[#58cc02]">
               {userData ? (userData.xpToday ?? '-') : '—'}
             </div>
             <div className="text-xs text-gray-500 font-bold mt-1">今日 XP</div>
           </div>
-          <div className="bg-blue-50 rounded-xl p-3 text-center">
+          <div className="bg-blue-50 dark:bg-blue-900/30 rounded-xl p-3 text-center">
             <div className="text-2xl font-extrabold text-blue-500">
               {userData ? (userData.lessonsToday ?? '-') : '—'}
             </div>
@@ -55,13 +55,13 @@ export function TodayOverview({ userData, seq }: TodayOverviewProps): React.Reac
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-orange-50 rounded-xl p-3 text-center">
+          <div className="bg-orange-50 dark:bg-orange-900/30 rounded-xl p-3 text-center">
             <div className="text-2xl font-extrabold text-orange-500">
               {userData ? userData.streak : '—'}
             </div>
             <div className="text-xs text-gray-500 font-bold mt-1">连胜天数</div>
           </div>
-          <div className="bg-purple-50 rounded-xl p-3 text-center">
+          <div className="bg-purple-50 dark:bg-purple-900/30 rounded-xl p-3 text-center">
             <div className="text-2xl font-extrabold text-purple-500">{todayTime}</div>
             <div className="text-xs text-gray-500 font-bold mt-1">学习分钟</div>
           </div>
