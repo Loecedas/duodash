@@ -73,14 +73,21 @@ export function ShareModal({ isOpen, onClose, userData, dashboardRef, onPrepareF
 
     if (selectedCard === 'full' && onPrepareFull) {
       onPrepareFull();
-      // Wait for rendering and lazy components (Heatmap)
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // Wait longer for rendering and lazy components (Heatmap, Charts)
+      await new Promise(resolve => setTimeout(resolve, 1500));
     }
 
+    const isFull = selectedCard === 'full';
+    
     await capture(targetRef.current, {
       filename: filenames[selectedCard],
-      pixelRatio: selectedCard === 'full' ? 2 : 3, // Full dashboard is huge, 2x is enough
-      backgroundColor: document.documentElement.dataset.theme === 'dark' ? '#0b1220' : '#f0f4f8'
+      pixelRatio: isFull ? 2 : 3,
+      backgroundColor: isFull 
+        ? (document.documentElement.dataset.theme === 'dark' ? '#0b1220' : '#f7f7f7')
+        : 'transparent',
+      width: isFull ? 1200 : 400,
+      height: isFull ? undefined : 500,
+      style: isFull ? { padding: '40px' } : undefined
     });
   }, [selectedCard, capture, dashboardRef, onPrepareFull]);
 
@@ -122,10 +129,24 @@ export function ShareModal({ isOpen, onClose, userData, dashboardRef, onPrepareF
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden"
+        className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden relative"
         style={{ scrollbarWidth: 'none' }}
         onClick={e => e.stopPropagation()}
       >
+        {/* Loading Overlay during Export */}
+        {isExporting && (
+          <div className="absolute inset-0 z-[100] flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm rounded-2xl transition-all duration-300">
+             <div className="relative">
+                <div className="w-16 h-16 border-4 border-[#58cc02]/20 border-t-[#58cc02] rounded-full animate-spin"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-xl">🦜</span>
+                </div>
+             </div>
+             <p className="mt-4 font-bold text-[#58cc02] animate-pulse">正在为您生成分享图...</p>
+             <p className="text-xs text-gray-500 mt-1">为了保证图表完整，请稍等片刻</p>
+          </div>
+        )}
+
         <div className="p-5 sm:p-6">
           {/* Header */}
           <div className="flex justify-between items-center mb-5">
@@ -160,37 +181,45 @@ export function ShareModal({ isOpen, onClose, userData, dashboardRef, onPrepareF
             ))}
           </div>
 
-          {/* Card Preview */}
-          <div className="flex justify-center mb-6 py-2 px-1">
-            {selectedCard === 'milestone-streak' && (
-              <MilestoneCard ref={cardRef} type="streak" value={userData.streak} />
-            )}
-            {selectedCard === 'milestone-xp' && (
-              <MilestoneCard ref={cardRef} type="xp" value={userData.totalXp} />
-            )}
-            {selectedCard === 'weekly' && (
-              <WeeklySummaryCard
-                ref={cardRef}
-                daysLearned={weeklyData.daysLearned}
-                totalXp={weeklyData.totalXp}
-                totalTime={weeklyData.totalTime}
-                dailyXp={weeklyData.dailyXp}
-                dateRange={weeklyData.dateRange}
-                isFutureFlags={weeklyData.isFutureFlags}
-              />
-            )}
-            {selectedCard === 'full' && (
-              <div className="flex flex-col items-center justify-center p-8 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 text-gray-400">
-                <svg className="w-12 h-12 mb-3 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                  <line x1="3" y1="9" x2="21" y2="9" />
-                  <line x1="9" y1="21" x2="9" y2="9" />
-                </svg>
-                <p className="font-bold text-sm">将截取整个仪表盘界面</p>
-                <p className="text-xs mt-1">包含所有图表、统计和连胜数据</p>
+          {/* Card Preview Area */}
+          <div className="flex justify-center mb-6 py-2 px-1 relative">
+            {/* Stability Container: Fixed dimensions to prevent modal jitter */}
+            <div className="w-full max-w-[320px] h-[400px] sm:h-[400px] overflow-hidden flex items-center justify-center rounded-3xl relative bg-gray-50/30 border border-gray-100/50">
+              <div 
+                className="w-full h-full flex items-center justify-center p-0"
+              >
+                {selectedCard === 'milestone-streak' && (
+                  <MilestoneCard ref={cardRef} type="streak" value={userData.streak} />
+                )}
+                {selectedCard === 'milestone-xp' && (
+                  <MilestoneCard ref={cardRef} type="xp" value={userData.totalXp} />
+                )}
+                {selectedCard === 'weekly' && (
+                  <WeeklySummaryCard
+                    ref={cardRef}
+                    daysLearned={weeklyData.daysLearned}
+                    totalXp={weeklyData.totalXp}
+                    totalTime={weeklyData.totalTime}
+                    dailyXp={weeklyData.dailyXp}
+                    dateRange={weeklyData.dateRange}
+                    isFutureFlags={weeklyData.isFutureFlags}
+                  />
+                )}
+                {selectedCard === 'full' && (
+                  <div className="flex flex-col items-center justify-center p-8 text-gray-400 w-full h-full bg-white rounded-3xl border-2 border-dashed border-gray-200">
+                    <svg className="w-12 h-12 mb-3 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                      <line x1="3" y1="9" x2="21" y2="9" />
+                      <line x1="9" y1="21" x2="9" y2="9" />
+                    </svg>
+                    <p className="font-bold text-sm text-center">全屏仪表盘模式</p>
+                    <p className="text-xs mt-1 text-center">将截取整个数据页面</p>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
+        </div>
 
           {/* Export Button */}
           <button
@@ -217,10 +246,8 @@ export function ShareModal({ isOpen, onClose, userData, dashboardRef, onPrepareF
               </>
             )}
           </button>
-
         </div>
       </div>
-    </div>
   );
 }
 

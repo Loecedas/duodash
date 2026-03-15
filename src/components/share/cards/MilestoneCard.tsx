@@ -16,7 +16,7 @@ const CONFIG = {
     ),
     label: '连续打卡',
     unit: '天',
-    bgColor: 'bg-orange-500',
+    bgColor: '#FF9600', // DuoColors.foxOrange
     borderColor: 'border-orange-600',
     textColor: 'text-white',
     accentColor: 'text-yellow-200'
@@ -29,7 +29,7 @@ const CONFIG = {
     ),
     label: '总经验值',
     unit: 'XP',
-    bgColor: 'bg-blue-500',
+    bgColor: '#1CB0F6', // DuoColors.macawBlue
     borderColor: 'border-blue-600',
     textColor: 'text-white',
     accentColor: 'text-blue-200'
@@ -45,15 +45,18 @@ export const MilestoneCard = forwardRef<HTMLDivElement, MilestoneCardProps>(
     return (
       <div
         ref={ref}
-        className={`relative w-full max-w-[320px] aspect-[4/5] mx-auto rounded-3xl overflow-hidden ${bgColor} p-6 flex flex-col items-center justify-between`}
+        className={`relative w-full max-w-[320px] aspect-[4/5] mx-auto rounded-3xl overflow-hidden p-6 flex flex-col items-center justify-between shadow-lg`}
+        style={{ background: bgColor }}
       >
-        {/* Decorative Patterns */}
+        {/* Decorative Patterns - Using SVG instead of pattern for better capture compatibility */}
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
            <svg width="100%" height="100%">
-             <pattern id="dotPattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-               <circle cx="2" cy="2" r="2" fill="currentColor" className="text-white"/>
-             </pattern>
-             <rect width="100%" height="100%" fill="url(#dotPattern)" />
+             <defs>
+               <pattern id={`dotPattern-${type}`} x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                 <circle cx="2" cy="2" r="2" fill="white" />
+               </pattern>
+             </defs>
+             <rect width="100%" height="100%" fill={`url(#dotPattern-${type})`} />
            </svg>
         </div>
 

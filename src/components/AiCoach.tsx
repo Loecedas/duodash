@@ -84,13 +84,12 @@ export function AiCoach({ userData }: AiCoachProps): React.ReactElement {
         <div className="flex items-start gap-4">
           <div className="hidden sm:block flex-shrink-0">
             <img
-              src="https://design.duolingo.com/28e4b3aebfae83e5ff2f.svg"
+              src="/duo-ai-coach.svg"
               alt="Duo"
               width="64"
               height="64"
-              loading="lazy"
               decoding="async"
-              fetchPriority="low"
+              fetchPriority="high"
               className={`w-16 h-16 ${loading ? 'animate-bounce' : ''}`}
             />
           </div>
