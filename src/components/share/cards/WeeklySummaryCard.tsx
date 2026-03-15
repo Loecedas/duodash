@@ -20,14 +20,17 @@ export const WeeklySummaryCard = forwardRef<HTMLDivElement, WeeklySummaryCardPro
     return (
       <div
         ref={ref}
-        className="relative w-full max-w-[320px] aspect-[4/5] mx-auto rounded-3xl overflow-hidden bg-green-500 p-6 flex flex-col justify-between"
+        className="relative w-full max-w-[320px] aspect-[4/5] mx-auto rounded-3xl overflow-hidden p-6 flex flex-col justify-between shadow-lg"
+        style={{ backgroundColor: '#58CC02' }}
       >
         {/* Decorative Patterns */}
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
            <svg width="100%" height="100%">
-             <pattern id="dotPatternGreen" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-               <circle cx="2" cy="2" r="2" fill="currentColor" className="text-white"/>
-             </pattern>
+             <defs>
+               <pattern id="dotPatternGreen" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                 <circle cx="2" cy="2" r="2" fill="white" />
+               </pattern>
+             </defs>
              <rect width="100%" height="100%" fill="url(#dotPatternGreen)" />
            </svg>
         </div>
