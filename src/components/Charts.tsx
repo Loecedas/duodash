@@ -392,7 +392,7 @@ export function HeatmapChart({ data }: HeatmapChartProps): React.ReactElement {
               {/* Tooltip 卡片 */}
               <div
                 ref={tooltipRef}
-                className="fixed z-[9999] bg-white text-gray-700 rounded-xl shadow-lg border border-gray-200 p-3 min-w-[160px]"
+                className="fixed z-[9999] bg-white text-gray-700 rounded-xl shadow-xl border border-gray-200 p-3 w-[180px]"
                 style={{
                   left: `${tooltip.x}px`,
                   top: tooltip.showBelow ? `${tooltip.y}px` : `${tooltip.y}px`,
@@ -402,23 +402,23 @@ export function HeatmapChart({ data }: HeatmapChartProps): React.ReactElement {
                 {/* 关闭按钮 */}
                 <button
                   onClick={() => setTooltip(null)}
-                  className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-600 flex items-center justify-center text-[10px] transition-colors"
+                  className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-600 flex items-center justify-center text-[10px] transition-colors shadow-sm"
                 >
                   ✕
                 </button>
 
                 {/* 导航和日期 */}
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between gap-1 mb-2">
                   <button
                     onClick={() => navigateDay(-1)}
                     disabled={!canNavigate(-1)}
-                    className="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-xs transition-colors"
+                    className="flex-shrink-0 w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-xs transition-colors"
                   >
                     ←
                   </button>
-                  <div className="text-center px-2">
-                    <div className="font-bold text-sm">{tooltip.date}</div>
-                    <div className="text-[10px] text-gray-500">
+                  <div className="text-center overflow-hidden flex-1 px-1">
+                    <div className="font-bold text-xs truncate leading-tight">{tooltip.date}</div>
+                    <div className="text-[10px] text-gray-500 truncate leading-tight">
                       {(() => {
                         const d = new Date(tooltip.date + 'T12:00:00');
                         return isNaN(d.getTime()) ? '未知' : d.toLocaleDateString('zh-CN', { weekday: 'long' });
@@ -428,20 +428,20 @@ export function HeatmapChart({ data }: HeatmapChartProps): React.ReactElement {
                   <button
                     onClick={() => navigateDay(1)}
                     disabled={!canNavigate(1)}
-                    className="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-xs transition-colors"
+                    className="flex-shrink-0 w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-xs transition-colors"
                   >
                     →
                   </button>
                 </div>
 
                 {/* 数据展示 */}
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-gray-50 rounded-lg p-2 text-center">
-                    <div className="text-lg font-bold text-[#58cc02]">{tooltip.xp}</div>
+                <div className="grid grid-cols-2 gap-2 w-full">
+                  <div className="bg-gray-50 rounded-lg py-2 px-1 text-center flex flex-col justify-center min-w-0">
+                    <div className="text-base font-bold text-[#58cc02] truncate">{tooltip.xp}</div>
                     <div className="text-[10px] text-gray-500">XP</div>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-2 text-center">
-                    <div className="text-lg font-bold text-[#1cb0f6]">
+                  <div className="bg-gray-50 rounded-lg py-2 px-1 text-center flex flex-col justify-center min-w-0">
+                    <div className="text-base font-bold text-[#1cb0f6] truncate">
                       {tooltip.time && tooltip.time > 0 ? tooltip.time : 0}
                     </div>
                     <div className="text-[10px] text-gray-500">分钟</div>
