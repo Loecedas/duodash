@@ -38,8 +38,13 @@ export function isSameOrigin(request: Request): boolean {
   try {
     const requestUrl = new URL(requestOrigin);
     const currentUrl = new URL(request.url);
+    
+    // 允许相同 hostname，或者两者都是 vercel.app 的子域名
+    const isVercel = requestUrl.hostname.endsWith('.vercel.app') && currentUrl.hostname.endsWith('.vercel.app');
+    
     return (
       requestUrl.hostname === currentUrl.hostname ||
+      isVercel ||
       requestUrl.hostname === 'localhost' ||
       requestUrl.hostname === '127.0.0.1'
     );

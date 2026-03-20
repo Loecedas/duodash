@@ -19,5 +19,13 @@ export const GET: APIRoute = async ({ request }) => {
     username !== 'your_duolingo_username' &&
     jwt !== 'your_jwt_token_here';
 
-  return jsonResponse({ configured });
+  return jsonResponse({ 
+    configured,
+    hints: {
+      hasUsername: username !== '',
+      hasJwt: jwt !== '',
+      isDefaultUsername: username === 'your_duolingo_username',
+      isDefaultJwt: jwt === 'your_jwt_token_here'
+    }
+  });
 };
