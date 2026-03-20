@@ -25,10 +25,16 @@ export function useScreenshot() {
       pixelRatio = 2,
     } = options;
 
-    console.log(`Starting screenshot capture (Mirror Sandbox): ${filename}`, { pixelRatio });
     setIsExporting(true);
-
     const el = element;
+
+    const isFull = filename.includes('full');
+    console.log(`Starting screenshot capture (Responsive Live): ${filename}`, { 
+      pixelRatio,
+      width: el.clientWidth,
+      height: el.clientHeight 
+    });
+
     const originalStyle: any = {
       width: el.style.width,
       maxWidth: el.style.maxWidth,
@@ -53,13 +59,12 @@ export function useScreenshot() {
       const isFull = filename.includes('full');
       
       // 为全屏模式或卡片模式确定宽度
-      const captureWidth = options.width || (isFull ? 1280 : el.clientWidth);
+      const captureWidth = options.width || el.clientWidth;
       const captureBackground = options.backgroundColor || (resolvedTheme === 'dark' ? '#0f172a' : '#f0f4f8');
 
       // A. 仅在全屏模式下锁定和修改样式
       if (isFull) {
-        setStyle('width', `${captureWidth}px`);
-        setStyle('maxWidth', `${captureWidth}px`);
+        // 不再强制设置宽度，以支持响应式设计
         setStyle('height', 'auto');
         setStyle('padding', '32px 32px 56px 32px');
         setStyle('background', captureBackground);
@@ -84,7 +89,6 @@ export function useScreenshot() {
           transform: 'scale(1)',
           transformOrigin: 'top left',
           margin: '0',
-          width: `${captureWidth}px`,
           height: el.style.height,
           padding: '32px 32px 56px 32px',
           boxSizing: 'border-box',

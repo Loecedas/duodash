@@ -504,31 +504,13 @@ export function DuoDashApp(): React.ReactElement {
         />
       </main>
 
-      {/* Capture Mirror - Hidden from user */}
-      <div 
-        className="fixed top-0 pointer-events-none opacity-0 overflow-hidden"
-        style={{ left: '5000px', width: '1200px' }}
-      >
-        <div ref={captureRef} className="w-[1200px] bg-[#f7f7f7] dark:bg-[#0b1220]">
-          <DashboardContent
-            userData={userData}
-            viewData={viewData}
-            shouldRenderAboveFoldCharts={true}
-            shouldRenderHeatmap={true}
-            hasTimeHistory={!!hasTimeHistory}
-            hasYearlyHistory={!!hasYearlyHistory}
-            isMirror={true}
-          />
-        </div>
-      </div>
-
       {userData && (
         <ShareModal
           isOpen={showShareModal}
           onClose={() => setShowShareModal(false)}
           userData={userData}
           cardRef={cardRef}
-          dashboardRef={captureRef}
+          dashboardRef={dashboardRef}
           onPrepareFull={() => {}}
         />
       )}

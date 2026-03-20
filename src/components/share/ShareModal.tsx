@@ -58,7 +58,7 @@ export function ShareModal({
       backgroundColor: isFull 
         ? (document.documentElement.dataset.theme === 'dark' ? '#0b1220' : '#f7f7f7')
         : 'transparent',
-      width: isFull ? 1200 : 400,
+      width: isFull ? undefined : 400,
       height: isFull ? undefined : 500,
       style: isFull ? { padding: '40px' } : undefined
     });
