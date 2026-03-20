@@ -182,6 +182,15 @@ export function HeatmapChart({ data }: HeatmapChartProps): React.ReactElement {
       }
     });
 
+    const targetWeeks = viewMode === 'quarter' ? 14 : viewMode === 'half' ? 28 : 54;
+    while (weeksArr.length < targetWeeks) {
+      const emptyWeek: typeof dates = [];
+      for (let i = 0; i < 7; i++) {
+        emptyWeek.push({ date: new Date(0), xp: -1, time: undefined, dateStr: '' });
+      }
+      weeksArr.push(emptyWeek);
+    }
+
     return { allDates: dates, weeks: weeksArr, monthLabels: labels, maxXp: max };
   }, [selectedYear, selectedQuarter, selectedHalf, viewMode, xpMap, timeMap]);
 
