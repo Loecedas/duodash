@@ -53,6 +53,11 @@ export function HeatmapChart({ data }: HeatmapChartProps): React.ReactElement {
   const [tooltip, setTooltip] = useState<TooltipInfo | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('year');
   const tooltipRef = useRef<HTMLDivElement>(null);
+  
+  // 切换视图参数时清除 Tooltip，防止其“卡”在旧位置
+  useEffect(() => {
+    setTooltip(null);
+  }, [selectedYear, selectedQuarter, selectedHalf, viewMode]);
 
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
@@ -61,7 +66,7 @@ export function HeatmapChart({ data }: HeatmapChartProps): React.ReactElement {
       const width = window.innerWidth;
       if (width < 640) {
         setViewMode('quarter');
-      } else if (width < 1024) {
+      } else if (width < 1200) {
         setViewMode('half');
       } else {
         setViewMode('year');
