@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import type { UserData } from '../../types';
 import { MilestoneCard, WeeklySummaryCard } from './cards';
 import { useScreenshot } from './useScreenshot';
@@ -7,78 +8,50 @@ interface ShareModalProps {
   isOpen: boolean;
   onClose: () => void;
   userData: UserData;
-  dashboardRef: React.RefObject<HTMLDivElement | null>;
+  cardRef: React.RefObject<HTMLDivElement | null>;
+  dashboardRef: React.RefObject<HTMLElement | null>;
   onPrepareFull?: () => void;
 }
 
-type CardType = 'milestone-streak' | 'milestone-xp' | 'weekly' | 'full';
+const CARD_OPTIONS = [
+  { type: 'milestone-streak', label: '连胜成就', icon: '🔥' },
+  { type: 'milestone-xp', label: '经验突破', icon: '⭐' },
+  { type: 'weekly', label: '本周报告', icon: '📊' },
+  { type: 'full', label: '全屏数据', icon: '📱' },
+] as const;
 
-const CARD_OPTIONS: { type: CardType; label: string; icon: React.ReactNode }[] = [
-  {
-    type: 'milestone-streak',
-    label: '连胜成就',
-    icon: (
-      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.1.2-2.2.5-3.3.3-1.09.53-2.2.25-3.6z" />
-      </svg>
-    ),
-  },
-  {
-    type: 'milestone-xp',
-    label: '经验突破',
-    icon: (
-      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2L14.09 8.26L20.18 8.63L15.54 12.74L16.91 19.37L12 15.77L7.09 19.37L8.46 12.74L3.82 8.63L9.91 8.26L12 2Z" />
-      </svg>
-    ),
-  },
-  {
-    type: 'weekly',
-    label: '本周报告',
-    icon: (
-      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M3 3v18h18" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M18 9l-5 5-4-4-3 3" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    ),
-  },
-  {
-    type: 'full',
-    label: '全屏数据',
-    icon: (
-      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-        <line x1="3" y1="9" x2="21" y2="9" />
-        <line x1="9" y1="21" x2="9" y2="9" />
-      </svg>
-    ),
-  },
-];
+type CardType = (typeof CARD_OPTIONS)[number]['type'];
 
-export function ShareModal({ isOpen, onClose, userData, dashboardRef, onPrepareFull }: ShareModalProps): React.ReactElement | null {
+export function ShareModal({
+  isOpen,
+  onClose,
+  userData,
+  cardRef,
+  dashboardRef,
+  onPrepareFull,
+}: ShareModalProps) {
   const [selectedCard, setSelectedCard] = useState<CardType>('milestone-streak');
-  const cardRef = useRef<HTMLDivElement>(null);
   const { isExporting, capture } = useScreenshot();
 
   const handleExport = useCallback(async () => {
-    const targetRef = selectedCard === 'full' ? dashboardRef : cardRef;
-    if (!targetRef.current) return;
-
     const filenames: Record<CardType, string> = {
-      'milestone-streak': 'duodash-streak',
-      'milestone-xp': 'duodash-xp',
-      'weekly': 'duodash-weekly',
+      'milestone-streak': 'streak-milestone',
+      'milestone-xp': 'xp-milestone',
+      'weekly': 'weekly-report',
       'full': 'duodash-full',
     };
 
-    if (selectedCard === 'full' && onPrepareFull) {
+    const isFull = selectedCard === 'full';
+    const targetRef = isFull ? dashboardRef : cardRef;
+
+    if (!targetRef.current) return;
+
+    if (isFull && onPrepareFull) {
       onPrepareFull();
-      // Wait longer for rendering and lazy components (Heatmap, Charts)
+      // Wait longer for rendering and lazy components
       await new Promise(resolve => setTimeout(resolve, 1500));
     }
 
-    const isFull = selectedCard === 'full';
-    
     await capture(targetRef.current, {
       filename: filenames[selectedCard],
       pixelRatio: isFull ? 2 : 3,
@@ -89,30 +62,56 @@ export function ShareModal({ isOpen, onClose, userData, dashboardRef, onPrepareF
       height: isFull ? undefined : 500,
       style: isFull ? { padding: '40px' } : undefined
     });
-  }, [selectedCard, capture, dashboardRef, onPrepareFull]);
+  }, [selectedCard, cardRef, dashboardRef, onPrepareFull, capture]);
 
   const getWeeklyData = useCallback(() => {
-    // 使用自然周数据（周一到周日）
-    const weeklyXp = userData.weeklyXpHistory || [];
-    const weeklyTime = userData.weeklyTimeHistory || [];
+    const xpHistory = userData.dailyXpHistory || [];
+    const timeHistory = userData.dailyTimeHistory || [];
+    
+    if (xpHistory.length === 0) return null;
 
-    const dailyXp = weeklyXp.map(d => d.xp);
-    const isFutureFlags = weeklyXp.map(d => d.isFuture);
-    const totalXp = dailyXp.reduce((a, b) => a + b, 0);
-    const daysLearned = weeklyXp.filter(d => d.xp > 0 && !d.isFuture).length;
-    const totalMinutes = weeklyTime.reduce((a, d) => a + (d.isFuture ? 0 : d.time), 0);
-    const hours = Math.floor(totalMinutes / 60);
-    const mins = totalMinutes % 60;
-    const totalTime = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
-
-    // 计算自然周的日期范围（周一到周日）
     const today = new Date();
     const dayOfWeek = today.getDay();
     const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
     const monday = new Date(today);
     monday.setDate(today.getDate() - daysToMonday);
+    monday.setHours(0, 0, 0, 0);
     const sunday = new Date(monday);
     sunday.setDate(monday.getDate() + 6);
+    sunday.setHours(23, 59, 59, 999);
+
+    const weekXpStats = xpHistory.filter(stat => {
+      const d = new Date(stat.date);
+      return d >= monday && d <= sunday;
+    });
+
+    const weekTimeStats = timeHistory.filter(stat => {
+      const d = new Date(stat.date);
+      return d >= monday && d <= sunday;
+    });
+
+    const daysLearned = weekXpStats.filter(s => s.xp > 0).length;
+    const totalXp = weekXpStats.reduce((sum, s) => sum + s.xp, 0);
+    const totalTimeValue = Math.round(weekTimeStats.reduce((sum, s) => sum + (s.time || 0), 0) / 60);
+    const totalTime = `${totalTimeValue}分`;
+
+    const dailyXp = [0, 0, 0, 0, 0, 0, 0];
+    const isFutureFlags = [false, false, false, false, false, false, false];
+
+    weekXpStats.forEach(stat => {
+      const d = new Date(stat.date);
+      let dayIdx = d.getDay();
+      dayIdx = dayIdx === 0 ? 6 : dayIdx - 1;
+      if (dayIdx >= 0 && dayIdx < 7) {
+        dailyXp[dayIdx] = stat.xp;
+      }
+    });
+
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        if (d > today) isFutureFlags[i] = true;
+    }
 
     const dateRange = `${monday.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })} - ${sunday.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })}`;
 
@@ -123,13 +122,14 @@ export function ShareModal({ isOpen, onClose, userData, dashboardRef, onPrepareF
 
   const weeklyData = getWeeklyData();
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      style={{ width: '100vw', height: '100vh', left: 0, top: 0 }}
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden relative"
+        className="bg-white rounded-2xl shadow-xl w-[480px] max-w-[calc(100vw-2rem)] max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden relative"
         style={{ scrollbarWidth: 'none' }}
         onClick={e => e.stopPropagation()}
       >
@@ -183,7 +183,6 @@ export function ShareModal({ isOpen, onClose, userData, dashboardRef, onPrepareF
 
           {/* Card Preview Area */}
           <div className="flex justify-center mb-6 py-2 px-1 relative">
-            {/* Stability Container: Fixed dimensions to prevent modal jitter */}
             <div className="w-full max-w-[320px] h-[400px] sm:h-[400px] overflow-hidden flex items-center justify-center rounded-3xl relative bg-gray-50/30 border border-gray-100/50">
               <div 
                 className="w-full h-full flex items-center justify-center p-0"
@@ -194,7 +193,7 @@ export function ShareModal({ isOpen, onClose, userData, dashboardRef, onPrepareF
                 {selectedCard === 'milestone-xp' && (
                   <MilestoneCard ref={cardRef} type="xp" value={userData.totalXp} />
                 )}
-                {selectedCard === 'weekly' && (
+                {selectedCard === 'weekly' && weeklyData && (
                   <WeeklySummaryCard
                     ref={cardRef}
                     daysLearned={weeklyData.daysLearned}
@@ -219,7 +218,6 @@ export function ShareModal({ isOpen, onClose, userData, dashboardRef, onPrepareF
               </div>
             </div>
           </div>
-        </div>
 
           {/* Export Button */}
           <button
@@ -248,6 +246,8 @@ export function ShareModal({ isOpen, onClose, userData, dashboardRef, onPrepareF
           </button>
         </div>
       </div>
+    </div>,
+    document.body
   );
 }
 

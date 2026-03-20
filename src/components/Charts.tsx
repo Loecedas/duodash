@@ -4,6 +4,7 @@ import { DuoColors } from '../styles/duolingoColors';
 
 interface HeatmapChartProps {
   data: { date: string; xp: number; time?: number }[];
+  forceViewMode?: ViewMode;
 }
 
 type ViewMode = 'quarter' | 'half' | 'year';
@@ -45,13 +46,13 @@ function getColor(xp: number, maxXp: number): string {
   return '#216E39';
 }
 
-export function HeatmapChart({ data }: HeatmapChartProps): React.ReactElement {
+export function HeatmapChart({ data, forceViewMode }: HeatmapChartProps): React.ReactElement {
   const now = new Date();
   const [selectedYear, setSelectedYear] = useState<number>(now.getFullYear());
   const [selectedQuarter, setSelectedQuarter] = useState<number>(Math.ceil((now.getMonth() + 1) / 3));
   const [selectedHalf, setSelectedHalf] = useState<number>(now.getMonth() < 6 ? 1 : 2);
   const [tooltip, setTooltip] = useState<TooltipInfo | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>('year');
+  const [viewMode, setViewMode] = useState<ViewMode>(forceViewMode || 'year');
   const tooltipRef = useRef<HTMLDivElement>(null);
   
   // 切换视图参数时清除 Tooltip，防止其“卡”在旧位置
@@ -78,13 +79,15 @@ export function HeatmapChart({ data }: HeatmapChartProps): React.ReactElement {
       timeoutId = setTimeout(checkScreenSize, 150);
     }
 
+    if (forceViewMode) return undefined;
+
     checkScreenSize();
     window.addEventListener('resize', debouncedCheck);
     return () => {
       window.removeEventListener('resize', debouncedCheck);
       clearTimeout(timeoutId);
     };
-  }, []);
+  }, [forceViewMode]);
 
   useEffect(() => {
     if (!tooltip) return;

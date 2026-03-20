@@ -90,6 +90,113 @@ const PLACEHOLDER_DATA: UserData = {
 
 type ThemeMode = 'light' | 'dark' | 'system';
 
+interface DashboardContentProps {
+  userData: UserData | null;
+  viewData: UserData;
+  shouldRenderAboveFoldCharts: boolean;
+  shouldRenderHeatmap: boolean;
+  hasTimeHistory: boolean;
+  hasYearlyHistory: boolean;
+  heatmapSentinelRef?: React.RefObject<HTMLDivElement | null>;
+  isMirror?: boolean;
+}
+
+const DashboardContent = ({
+  userData,
+  viewData,
+  shouldRenderAboveFoldCharts,
+  shouldRenderHeatmap,
+  hasTimeHistory,
+  hasYearlyHistory,
+  heatmapSentinelRef,
+  isMirror = false
+}: DashboardContentProps) => {
+  return (
+    <div className={isMirror ? "p-8" : ""}>
+      <PageHeader userData={userData} viewData={viewData} />
+
+      <div className="space-y-6">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-4">
+          <StatCard icon="⚡" value={userData ? viewData.totalXp.toLocaleString() : '—'} label="总经验" colorClass="text-yellow-500" seq={1} />
+          <StatCard icon="📅" value={userData ? viewData.accountAgeDays : '—'} label="注册天数" colorClass="text-blue-500" seq={2} />
+          <StatCard icon="📚" value={userData ? viewData.courses.length : '—'} label="学习课程" colorClass="text-teal-500" seq={3} />
+          <StatCard icon="⏱️" value={userData ? viewData.estimatedLearningTime : '—'} label="预估投入" colorClass="text-purple-500" seq={4} isLargeText={false} />
+        </div>
+
+        <div className={`grid gap-4 ${hasTimeHistory ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}>
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border-2 border-b-4 border-gray-200 dark:border-slate-700 animate-seq seq-5">
+            <h2 className="text-gray-700 dark:text-slate-100 font-bold text-lg mb-3 flex items-center gap-2">
+              <span>⚡</span> 最近 7 天经验
+            </h2>
+            {userData && (shouldRenderAboveFoldCharts || isMirror) ? (
+              <Suspense fallback={<ChartSkeleton />}>
+                <LazyXpHistoryChart data={viewData.dailyXpHistory} />
+              </Suspense>
+            ) : (
+              <ChartSkeleton />
+            )}
+          </div>
+          {hasTimeHistory && (
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border-2 border-b-4 border-gray-200 dark:border-slate-700 animate-seq seq-6">
+              <h2 className="text-gray-700 dark:text-slate-100 font-bold text-lg mb-3 flex items-center gap-2">
+                <span>⏱️</span> 最近 7 天学习时间
+              </h2>
+              {userData && (shouldRenderAboveFoldCharts || isMirror) ? (
+                <Suspense fallback={<ChartSkeleton />}>
+                  <LazyTimeHistoryChart data={viewData.dailyTimeHistory || []} />
+                </Suspense>
+              ) : (
+                <ChartSkeleton />
+              )}
+            </div>
+          )}
+        </div>
+
+        <CourseList courses={viewData.courses} seq={7} />
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 animate-seq seq-8">
+            {userData ? (
+              <Suspense fallback={<div className="bg-white dark:bg-slate-900 rounded-2xl p-6 h-32 animate-pulse" />}>
+                <LazyAiCoach userData={userData} />
+              </Suspense>
+            ) : (
+              <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 h-32 animate-pulse" />
+            )}
+          </div>
+          <TodayOverview userData={userData} seq={9} />
+        </div>
+
+        {hasYearlyHistory && (
+          <div
+            ref={heatmapSentinelRef}
+            className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border-2 border-b-4 border-gray-200 dark:border-slate-700 animate-seq seq-10"
+          >
+            <h2 className="text-gray-700 dark:text-slate-100 font-bold text-xl mb-4">📅 年度学习热力图</h2>
+            {(shouldRenderHeatmap || isMirror) ? (
+              <Suspense fallback={<div className="h-48 w-full bg-gray-100 dark:bg-slate-800 rounded-xl animate-pulse" />}>
+                <LazyHeatmapChart data={userData?.yearlyXpHistory || []} forceViewMode={isMirror ? 'year' : undefined} />
+              </Suspense>
+            ) : (
+              <div className="h-48 w-full bg-gray-50 dark:bg-slate-800 rounded-xl flex items-center justify-center text-gray-600 dark:text-slate-300 text-sm">
+                向下滚动时加载热力图…
+              </div>
+            )}
+          </div>
+        )}
+
+        {hasYearlyHistory && (
+          <div className="animate-seq seq-11">
+            <Suspense fallback={<div className="h-64 w-full bg-gray-100 dark:bg-slate-800 rounded-2xl animate-pulse" />}>
+              <LazyAchievementsSection data={userData?.yearlyXpHistory || []} />
+            </Suspense>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export function DuoDashApp(): React.ReactElement {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -103,6 +210,8 @@ export function DuoDashApp(): React.ReactElement {
   const [themeMode, setThemeMode] = useState<ThemeMode>('system');
   const heatmapSentinelRef = useRef<HTMLDivElement | null>(null);
   const dashboardRef = useRef<HTMLDivElement | null>(null);
+  const captureRef = useRef<HTMLDivElement | null>(null);
+  const cardRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     try {
@@ -384,97 +493,43 @@ export function DuoDashApp(): React.ReactElement {
       />
 
       <main ref={dashboardRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <PageHeader userData={userData} viewData={viewData} />
-
-        <div className="space-y-6">
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-4">
-            <StatCard icon="⚡" value={userData ? viewData.totalXp.toLocaleString() : '—'} label="总经验" colorClass="text-yellow-500" seq={1} />
-            <StatCard icon="📅" value={userData ? viewData.accountAgeDays : '—'} label="注册天数" colorClass="text-blue-500" seq={2} />
-            <StatCard icon="📚" value={userData ? viewData.courses.length : '—'} label="学习课程" colorClass="text-teal-500" seq={3} />
-            <StatCard icon="⏱️" value={userData ? viewData.estimatedLearningTime : '—'} label="预估投入" colorClass="text-purple-500" seq={4} isLargeText={false} />
-          </div>
-
-          <div className={`grid gap-4 ${hasTimeHistory ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}>
-            <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border-2 border-b-4 border-gray-200 dark:border-slate-700 animate-seq seq-5">
-              <h2 className="text-gray-700 dark:text-slate-100 font-bold text-lg mb-3 flex items-center gap-2">
-                <span>⚡</span> 最近 7 天经验
-              </h2>
-              {userData && shouldRenderAboveFoldCharts ? (
-                <Suspense fallback={<ChartSkeleton />}>
-                  <LazyXpHistoryChart data={viewData.dailyXpHistory} />
-                </Suspense>
-              ) : (
-                <ChartSkeleton />
-              )}
-            </div>
-            {hasTimeHistory && (
-              <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border-2 border-b-4 border-gray-200 dark:border-slate-700 animate-seq seq-6">
-                <h2 className="text-gray-700 dark:text-slate-100 font-bold text-lg mb-3 flex items-center gap-2">
-                  <span>⏱️</span> 最近 7 天学习时间
-                </h2>
-                {userData && shouldRenderAboveFoldCharts ? (
-                  <Suspense fallback={<ChartSkeleton />}>
-                    <LazyTimeHistoryChart data={viewData.dailyTimeHistory || []} />
-                  </Suspense>
-                ) : (
-                  <ChartSkeleton />
-                )}
-              </div>
-            )}
-          </div>
-
-          <CourseList courses={viewData.courses} seq={7} />
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 animate-seq seq-8">
-              {userData ? (
-                <Suspense fallback={<div className="bg-white dark:bg-slate-900 rounded-2xl p-6 h-32 animate-pulse" />}>
-                  <LazyAiCoach userData={userData} />
-                </Suspense>
-              ) : (
-                <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 h-32 animate-pulse" />
-              )}
-            </div>
-            <TodayOverview userData={userData} seq={9} />
-          </div>
-
-          {hasYearlyHistory && (
-            <div
-              ref={heatmapSentinelRef}
-              className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border-2 border-b-4 border-gray-200 dark:border-slate-700 animate-seq seq-10"
-            >
-              <h2 className="text-gray-700 dark:text-slate-100 font-bold text-xl mb-4">📅 年度学习热力图</h2>
-              {shouldRenderHeatmap ? (
-                <Suspense fallback={<div className="h-48 w-full bg-gray-100 dark:bg-slate-800 rounded-xl animate-pulse" />}>
-                  <LazyHeatmapChart data={userData?.yearlyXpHistory || []} />
-                </Suspense>
-              ) : (
-                <div className="h-48 w-full bg-gray-50 dark:bg-slate-800 rounded-xl flex items-center justify-center text-gray-600 dark:text-slate-300 text-sm">
-                  向下滚动时加载热力图…
-                </div>
-              )}
-            </div>
-          )}
-
-          {hasYearlyHistory && (
-            <div className="animate-seq seq-11">
-              <Suspense fallback={<div className="h-64 w-full bg-gray-100 dark:bg-slate-800 rounded-2xl animate-pulse" />}>
-                <LazyAchievementsSection data={userData?.yearlyXpHistory || []} />
-              </Suspense>
-            </div>
-          )}
-        </div>
+        <DashboardContent
+          userData={userData}
+          viewData={viewData}
+          shouldRenderAboveFoldCharts={shouldRenderAboveFoldCharts}
+          shouldRenderHeatmap={shouldRenderHeatmap}
+          hasTimeHistory={!!hasTimeHistory}
+          hasYearlyHistory={!!hasYearlyHistory}
+          heatmapSentinelRef={heatmapSentinelRef}
+        />
       </main>
+
+      {/* Capture Mirror - Hidden from user */}
+      <div 
+        className="fixed top-0 pointer-events-none opacity-0 overflow-hidden"
+        style={{ left: '5000px', width: '1200px' }}
+      >
+        <div ref={captureRef} className="w-[1200px] bg-[#f7f7f7] dark:bg-[#0b1220]">
+          <DashboardContent
+            userData={userData}
+            viewData={viewData}
+            shouldRenderAboveFoldCharts={true}
+            shouldRenderHeatmap={true}
+            hasTimeHistory={!!hasTimeHistory}
+            hasYearlyHistory={!!hasYearlyHistory}
+            isMirror={true}
+          />
+        </div>
+      </div>
 
       {userData && (
         <ShareModal
           isOpen={showShareModal}
           onClose={() => setShowShareModal(false)}
           userData={userData}
-          dashboardRef={dashboardRef}
-          onPrepareFull={() => {
-            setShouldRenderHeatmap(true);
-          }}
+          cardRef={cardRef}
+          dashboardRef={captureRef}
+          onPrepareFull={() => {}}
         />
       )}
     </div>

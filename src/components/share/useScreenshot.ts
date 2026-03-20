@@ -65,9 +65,6 @@ export function useScreenshot() {
         setStyle('background', captureBackground);
         setStyle('boxSizing', 'border-box');
         
-        // C. 强制广播 Resize 事件
-        window.dispatchEvent(new Event('resize'));
-        
         // D. 测量高度并锁定
         await new Promise(resolve => setTimeout(resolve, 150));
         const actualScrollHeight = el.scrollHeight;
