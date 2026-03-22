@@ -65,53 +65,25 @@ export function ShareModal({
   }, [selectedCard, cardRef, dashboardRef, onPrepareFull, capture]);
 
   const getWeeklyData = useCallback(() => {
-    const xpHistory = userData.dailyXpHistory || [];
-    const timeHistory = userData.dailyTimeHistory || [];
+    const xpHistory = userData.weeklyXpHistory || [];
+    const timeHistory = userData.weeklyTimeHistory || [];
     
     if (xpHistory.length === 0) return null;
+
+    const dailyXp = xpHistory.map(s => s.xp);
+    const isFutureFlags = xpHistory.map(s => s.isFuture);
+    const daysLearned = xpHistory.filter(s => s.xp > 0 && !s.isFuture).length;
+    const totalXp = xpHistory.reduce((sum, s) => sum + s.xp, 0);
+    const totalTimeValue = Math.round(timeHistory.reduce((sum, s) => sum + (s.time || 0), 0) / 60);
+    const totalTime = `${totalTimeValue}分`;
 
     const today = new Date();
     const dayOfWeek = today.getDay();
     const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
     const monday = new Date(today);
     monday.setDate(today.getDate() - daysToMonday);
-    monday.setHours(0, 0, 0, 0);
     const sunday = new Date(monday);
     sunday.setDate(monday.getDate() + 6);
-    sunday.setHours(23, 59, 59, 999);
-
-    const weekXpStats = xpHistory.filter(stat => {
-      const d = new Date(stat.date);
-      return d >= monday && d <= sunday;
-    });
-
-    const weekTimeStats = timeHistory.filter(stat => {
-      const d = new Date(stat.date);
-      return d >= monday && d <= sunday;
-    });
-
-    const daysLearned = weekXpStats.filter(s => s.xp > 0).length;
-    const totalXp = weekXpStats.reduce((sum, s) => sum + s.xp, 0);
-    const totalTimeValue = Math.round(weekTimeStats.reduce((sum, s) => sum + (s.time || 0), 0) / 60);
-    const totalTime = `${totalTimeValue}分`;
-
-    const dailyXp = [0, 0, 0, 0, 0, 0, 0];
-    const isFutureFlags = [false, false, false, false, false, false, false];
-
-    weekXpStats.forEach(stat => {
-      const d = new Date(stat.date);
-      let dayIdx = d.getDay();
-      dayIdx = dayIdx === 0 ? 6 : dayIdx - 1;
-      if (dayIdx >= 0 && dayIdx < 7) {
-        dailyXp[dayIdx] = stat.xp;
-      }
-    });
-
-    for (let i = 0; i < 7; i++) {
-        const d = new Date(monday);
-        d.setDate(monday.getDate() + i);
-        if (d > today) isFutureFlags[i] = true;
-    }
 
     const dateRange = `${monday.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })} - ${sunday.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })}`;
 
