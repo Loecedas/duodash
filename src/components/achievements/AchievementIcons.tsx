@@ -1,624 +1,252 @@
 import React from 'react';
 
-/** 多邻国官方风格成就图标组件 */
-
 interface IconProps {
   className?: string;
 }
 
-// 多邻国官方配色方案
 const C = {
-  // 主品牌色
-  green: '#58CC02',
-  greenShadow: '#46A302',
-  greenLight: '#89E219',
-  greenDark: '#2B8700',
-
-  // 功能色
-  blue: '#1CB0F6',
-  blueShadow: '#1899D6',
-  blueLight: '#84D8FF',
-
-  orange: '#FF9600',
-  orangeShadow: '#D67D00',
-  orangeLight: '#FFB84D',
-
-  yellow: '#FFC800',
-  yellowShadow: '#E5A000',
-  yellowLight: '#FFE066',
-
-  red: '#FF4B4B',
-  redShadow: '#D43232',
-  redLight: '#FF7A7A',
-
-  purple: '#CE82FF',
-  purpleShadow: '#A568CC',
-  purpleLight: '#E0B3FF',
-
-  pink: '#FF86D0',
-  pinkShadow: '#CC6BA6',
-
-  // 中性色
-  black: '#3C3C3C',
+  ink: '#21313C',
   white: '#FFFFFF',
-  grey: '#E5E5E5',
-  greyDark: '#AFAFAF',
+  cream: '#FFF8E8',
+  gold: '#FFC800',
+  goldLight: '#FFE27A',
+  amber: '#FFB020',
+  orange: '#FF8F1F',
+  orangeDeep: '#E46B00',
+  green: '#58CC02',
+  greenLight: '#8FE14B',
+  teal: '#14B8A6',
+  blue: '#1CB0F6',
+  blueLight: '#90DFFF',
+  navy: '#235390',
+  red: '#FF5A5F',
+  redDeep: '#D73B42',
+  purple: '#9D6BFF',
+  purpleLight: '#D7C0FF',
+  pink: '#FF83C4',
+  brown: '#B97939',
+  brownDark: '#7F4F22',
+  steel: '#C9D6E2',
+  steelDark: '#8CA0B0',
+} as const;
 
-  // 角色肤色
-  skinLight: '#FFEFC7',
-  skinMedium: '#E6D5C3',
-  skinDark: '#C4A484',
-  skinPink: '#FFD4D4',
-};
+function IconBase({
+  children,
+  className = 'w-full h-full',
+}: React.PropsWithChildren<IconProps>) {
+  return (
+    <svg
+      viewBox="0 0 64 64"
+      fill="none"
+      className={className}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {children}
+    </svg>
+  );
+}
 
-// ==================== 成就图标 ====================
-
-// 🔥 火焰图标 - Duo 风格火焰角色
-// 参考多邻国的火焰吉祥物，圆润可爱
-export const FlameIcon: React.FC<IconProps> = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 100 100" fill="none" className={className}>
-    {/* 阴影层 */}
-    <ellipse cx="50" cy="58" rx="28" ry="32" fill={C.orangeShadow} transform="translate(0, 3)"/>
-    {/* 外层火焰 - 橙色圆润身体 */}
-    <ellipse cx="50" cy="55" rx="28" ry="32" fill={C.orange}/>
-    {/* 火焰顶部尖角 */}
-    <path d="M50 8 C42 20 38 32 38 40 C38 50 44 55 50 55 C56 55 62 50 62 40 C62 32 58 20 50 8 Z" fill={C.orange}/>
-    <path d="M50 8 C42 20 38 32 38 40 C38 50 44 55 50 55 C56 55 62 50 62 40 C62 32 58 20 50 8 Z" fill={C.orangeShadow} transform="translate(0, 3)"/>
-    {/* 内层火焰 - 黄色 */}
-    <ellipse cx="50" cy="58" rx="20" ry="24" fill={C.yellow}/>
-    <path d="M50 22 C45 30 42 38 42 45 C42 52 46 55 50 55 C54 55 58 52 58 45 C58 38 55 30 50 22 Z" fill={C.yellow}/>
-    {/* 眼睛 - 大豆豆眼 */}
-    <ellipse cx="41" cy="52" rx="7" ry="8" fill={C.white}/>
-    <ellipse cx="59" cy="52" rx="7" ry="8" fill={C.white}/>
-    <circle cx="43" cy="54" r="4.5" fill={C.black}/>
-    <circle cx="61" cy="54" r="4.5" fill={C.black}/>
-    {/* 高光 */}
-    <circle cx="44.5" cy="52" r="2" fill={C.white}/>
-    <circle cx="62.5" cy="52" r="2" fill={C.white}/>
-    {/* 微笑嘴巴 */}
-    <path d="M44 68 Q50 74 56 68" stroke={C.orangeShadow} strokeWidth="3" strokeLinecap="round" fill="none"/>
-    {/* 腮红 */}
-    <ellipse cx="32" cy="60" rx="5" ry="3" fill={C.red} opacity="0.3"/>
-    <ellipse cx="68" cy="60" rx="5" ry="3" fill={C.red} opacity="0.3"/>
-  </svg>
+export const EmberIcon: React.FC<IconProps> = ({ className }) => (
+  <IconBase className={className}>
+    <path d="M33.2 8.5c1.9 9.2 8.8 11.8 8.8 21.1 0 8.7-6.1 15.1-14.3 15.1-7.7 0-13.7-5.8-13.7-13.5 0-6.8 3.7-11.4 9.2-16.7 1.2 4.1 4.1 7.2 7.5 8.9-1-4.9-.2-9.7 2.5-14.9Z" fill={C.orange} stroke={C.ink} strokeWidth="2.2" />
+    <path d="M28.9 24.1c4 2.7 6.5 6.2 6.5 10.2 0 4.8-3.1 8.1-7.6 8.1-4.3 0-7.5-3.2-7.5-7.6 0-3.5 1.9-6.7 5.4-9.9.9 2.1 1.9 3.5 3.2 4.4Z" fill={C.goldLight} />
+  </IconBase>
 );
 
-// ⚡ 闪电小鸟 - Bea 蜜蜂风格
-// 黄色圆润身体配闪电翅膀
-export const BoltBirdIcon: React.FC<IconProps> = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 100 100" fill="none" className={className}>
-    {/* 阴影层 */}
-    <ellipse cx="50" cy="55" rx="30" ry="32" fill={C.yellowShadow} transform="translate(0, 3)"/>
-    {/* 身体 - 黄色圆润 */}
-    <ellipse cx="50" cy="52" rx="30" ry="32" fill={C.yellow}/>
-    {/* 闪电翅膀左 */}
-    <path d="M18 35 L10 55 L20 50 L8 75 L28 48 L18 52 Z" fill={C.orange}/>
-    {/* 闪电翅膀右 */}
-    <path d="M82 35 L90 55 L80 50 L92 75 L72 48 L82 52 Z" fill={C.orange}/>
-    {/* 条纹 - 蜜蜂风格 */}
-    <ellipse cx="50" cy="70" rx="22" ry="10" fill={C.black} opacity="0.15"/>
-    {/* 眼睛 - 大豆豆眼 */}
-    <ellipse cx="38" cy="48" rx="9" ry="10" fill={C.white}/>
-    <ellipse cx="62" cy="48" rx="9" ry="10" fill={C.white}/>
-    <circle cx="40" cy="50" r="5" fill={C.black}/>
-    <circle cx="64" cy="50" r="5" fill={C.black}/>
-    {/* 高光 */}
-    <circle cx="42" cy="48" r="2.5" fill={C.white}/>
-    <circle cx="66" cy="48" r="2.5" fill={C.white}/>
-    {/* 嘴巴 - 橙色小嘴 */}
-    <ellipse cx="50" cy="64" rx="6" ry="4" fill={C.orange}/>
-    <path d="M47 63 Q50 66 53 63" stroke={C.orangeShadow} strokeWidth="1.5" strokeLinecap="round" fill="none"/>
-    {/* 触角/头顶装饰 */}
-    <circle cx="42" cy="22" r="4" fill={C.orange}/>
-    <circle cx="58" cy="22" r="4" fill={C.orange}/>
-    <line x1="42" y1="26" x2="44" y2="36" stroke={C.black} strokeWidth="2"/>
-    <line x1="58" y1="26" x2="56" y2="36" stroke={C.black} strokeWidth="2"/>
-  </svg>
+export const TorchIcon: React.FC<IconProps> = ({ className }) => (
+  <IconBase className={className}>
+    <path d="m22 39 11-20 10 6-11 20-10-6Z" fill={C.brown} stroke={C.ink} strokeWidth="2.2" />
+    <path d="m23 45 9 5-2 5c-1 2.4-3.7 3.5-6.1 2.3-2.3-1.1-3.2-3.9-2.1-6.2l1.2-1.1 0-5.0Z" fill={C.brownDark} />
+    <path d="M34.6 10.3c5.7 2.5 9.2 6.8 9.2 12 0 6.1-4.4 10.5-10.3 10.5-5.1 0-9.1-3.6-9.1-8.5 0-5.5 4.1-9.1 10.2-14Z" fill={C.orange} stroke={C.ink} strokeWidth="2.2" />
+    <path d="M34 18c2.9 1.8 4.7 4 4.7 6.8 0 3-2.1 5.3-5 5.3-2.7 0-4.7-2.1-4.7-4.9 0-2.3 1.4-4.4 5-7.2Z" fill={C.goldLight} />
+  </IconBase>
 );
 
-// 🦉 Duo 猫头鹰 - 多邻国经典吉祥物
-export const DuoOwlIcon: React.FC<IconProps> = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 100 100" fill="none" className={className}>
-    {/* 阴影层 */}
-    <ellipse cx="50" cy="55" rx="38" ry="40" fill={C.greenShadow} transform="translate(0, 3)"/>
-    {/* 主体 - 绿色圆润身体 */}
-    <ellipse cx="50" cy="52" rx="38" ry="40" fill={C.green}/>
-    {/* 耳朵尖角 */}
-    <path d="M18 30 Q12 15 22 20 L28 32 Z" fill={C.green}/>
-    <path d="M82 30 Q88 15 78 20 L72 32 Z" fill={C.green}/>
-    {/* 肚子 - 浅绿色 */}
-    <ellipse cx="50" cy="65" rx="22" ry="20" fill={C.greenLight} opacity="0.5"/>
-    {/* 眼睛白色区域 - 超大圆眼 */}
-    <circle cx="35" cy="45" r="16" fill={C.white}/>
-    <circle cx="65" cy="45" r="16" fill={C.white}/>
-    {/* 眼珠 */}
-    <circle cx="38" cy="47" r="9" fill={C.black}/>
-    <circle cx="68" cy="47" r="9" fill={C.black}/>
-    {/* 大高光 */}
-    <circle cx="41" cy="44" r="4" fill={C.white}/>
-    <circle cx="71" cy="44" r="4" fill={C.white}/>
-    {/* 小高光 */}
-    <circle cx="35" cy="50" r="2" fill={C.white}/>
-    <circle cx="65" cy="50" r="2" fill={C.white}/>
-    {/* 橙色嘴巴 */}
-    <path d="M42 68 L50 80 L58 68 Z" fill={C.orange}/>
-    <path d="M44 68 L50 76 L56 68 Z" fill={C.yellow}/>
-    {/* 眉毛 - 自信表情 */}
-    <path d="M24 32 Q30 28 40 32" stroke={C.greenDark} strokeWidth="3" strokeLinecap="round" fill="none"/>
-    <path d="M76 32 Q70 28 60 32" stroke={C.greenDark} strokeWidth="3" strokeLinecap="round" fill="none"/>
-  </svg>
+export const OrbitIcon: React.FC<IconProps> = ({ className }) => (
+  <IconBase className={className}>
+    <ellipse cx="32" cy="33" rx="19" ry="11.5" stroke={C.blue} strokeWidth="4" transform="rotate(-18 32 33)" />
+    <ellipse cx="32" cy="31" rx="12" ry="20" stroke={C.purple} strokeWidth="3.2" transform="rotate(24 32 31)" />
+    <circle cx="21" cy="22" r="5.2" fill={C.gold} stroke={C.ink} strokeWidth="2" />
+    <circle cx="45" cy="39" r="4.4" fill={C.blueLight} stroke={C.ink} strokeWidth="2" />
+    <path d="m31.5 16 2.6 5.5 6 .8-4.4 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9-4.4-4.1 6-.8 2.6-5.5Z" fill={C.cream} stroke={C.ink} strokeWidth="1.8" />
+  </IconBase>
 );
 
-// 🥊 拳击手 Falstaff 风格 - 红色圆润角色
-export const BoxerIcon: React.FC<IconProps> = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 100 100" fill="none" className={className}>
-    {/* 阴影层 */}
-    <ellipse cx="50" cy="55" rx="32" ry="35" fill={C.redShadow} transform="translate(0, 3)"/>
-    {/* 主体 - 红色圆润 */}
-    <ellipse cx="50" cy="52" rx="32" ry="35" fill={C.red}/>
-    {/* 拳套效果 - 手臂 */}
-    <ellipse cx="22" cy="60" rx="12" ry="14" fill={C.redShadow} transform="translate(0, 3)"/>
-    <ellipse cx="78" cy="60" rx="12" ry="14" fill={C.redShadow} transform="translate(0, 3)"/>
-    <ellipse cx="22" cy="58" rx="12" ry="14" fill={C.red}/>
-    <ellipse cx="78" cy="58" rx="12" ry="14" fill={C.red}/>
-    {/* 拳套高光 */}
-    <ellipse cx="20" cy="55" rx="6" ry="8" fill={C.redLight} opacity="0.5"/>
-    <ellipse cx="76" cy="55" rx="6" ry="8" fill={C.redLight} opacity="0.5"/>
-    {/* 头带 */}
-    <rect x="22" y="28" width="56" height="8" rx="4" fill={C.white}/>
-    {/* 眼睛 - 坚定表情 */}
-    <ellipse cx="38" cy="48" rx="8" ry="9" fill={C.white}/>
-    <ellipse cx="62" cy="48" rx="8" ry="9" fill={C.white}/>
-    <circle cx="40" cy="50" r="5" fill={C.black}/>
-    <circle cx="64" cy="50" r="5" fill={C.black}/>
-    <circle cx="42" cy="48" r="2" fill={C.white}/>
-    <circle cx="66" cy="48" r="2" fill={C.white}/>
-    {/* 愤怒眉毛 */}
-    <path d="M28 40 L42 44" stroke={C.black} strokeWidth="4" strokeLinecap="round"/>
-    <path d="M72 40 L58 44" stroke={C.black} strokeWidth="4" strokeLinecap="round"/>
-    {/* 坚定嘴巴 */}
-    <path d="M42 68 L58 68" stroke={C.black} strokeWidth="4" strokeLinecap="round"/>
-  </svg>
+export const GauntletIcon: React.FC<IconProps> = ({ className }) => (
+  <IconBase className={className}>
+    <path d="M22 20h7v9h3v-10h7v11h3V20h6v16c0 8.3-6.7 15-15 15h-3c-8.8 0-16-7.2-16-16V20h8Z" fill={C.red} stroke={C.ink} strokeWidth="2.2" />
+    <path d="M18 48h22v7c0 2.8-2.2 5-5 5H23c-2.8 0-5-2.2-5-5v-7Z" fill={C.redDeep} stroke={C.ink} strokeWidth="2.2" />
+    <path d="M22 26h23" stroke={C.white} strokeWidth="2.8" opacity="0.9" />
+  </IconBase>
 );
 
-// 📅 日历 Lily 风格 - 紫色可爱角色
-export const CalendarIcon: React.FC<IconProps> = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 100 100" fill="none" className={className}>
-    {/* 阴影层 */}
-    <rect x="18" y="20" width="64" height="70" rx="10" fill={C.greyDark} transform="translate(0, 3)"/>
-    {/* 主体 */}
-    <rect x="18" y="17" width="64" height="70" rx="10" fill={C.white}/>
-    {/* 紫色头部 - Lily 配色 */}
-    <path d="M18 27 C18 21.5 22.5 17 28 17 H72 C77.5 17 82 21.5 82 27 V36 H18 V27 Z" fill={C.purple}/>
-    {/* 环扣 */}
-    <rect x="30" y="10" width="8" height="16" rx="4" fill={C.purpleShadow}/>
-    <rect x="62" y="10" width="8" height="16" rx="4" fill={C.purpleShadow}/>
-    {/* Lily 脸部在日历上 */}
-    <ellipse cx="50" cy="60" rx="20" ry="22" fill={C.purpleLight}/>
-    {/* 眼睛 - Lily 风格半闭眼 */}
-    <path d="M40 56 Q44 52 48 56" stroke={C.black} strokeWidth="3" strokeLinecap="round" fill="none"/>
-    <path d="M52 56 Q56 52 60 56" stroke={C.black} strokeWidth="3" strokeLinecap="round" fill="none"/>
-    {/* 微笑 */}
-    <path d="M44 68 Q50 73 56 68" stroke={C.purpleShadow} strokeWidth="2.5" strokeLinecap="round" fill="none"/>
-    {/* 腮红 */}
-    <ellipse cx="36" cy="62" rx="4" ry="2.5" fill={C.pink} opacity="0.5"/>
-    <ellipse cx="64" cy="62" rx="4" ry="2.5" fill={C.pink} opacity="0.5"/>
-  </svg>
+export const SundialIcon: React.FC<IconProps> = ({ className }) => (
+  <IconBase className={className}>
+    <path d="M13 48c3.5-14.2 12.8-21.3 19-21.3S47.5 33.8 51 48H13Z" fill={C.goldLight} stroke={C.ink} strokeWidth="2.2" />
+    <path d="M32 15c7.2 0 13 5.8 13 13H19c0-7.2 5.8-13 13-13Z" fill={C.gold} stroke={C.ink} strokeWidth="2.2" />
+    <path d="M32 20v28" stroke={C.ink} strokeWidth="3.2" />
+    <path d="m32 28 11 20" stroke={C.orangeDeep} strokeWidth="3" />
+    <path d="M20 52h24" stroke={C.brownDark} strokeWidth="4" />
+  </IconBase>
 );
 
-// 🚀 火箭 - Duo 驾驶火箭
-export const RocketIcon: React.FC<IconProps> = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 100 100" fill="none" className={className}>
-    {/* 火焰 */}
-    <path d="M50 82 L38 98 L50 92 L62 98 Z" fill={C.orange}/>
-    <path d="M50 84 L42 96 L50 91 L58 96 Z" fill={C.yellow}/>
-    {/* 翅膀阴影 */}
-    <path d="M28 55 L12 80 H32 Z" fill={C.redShadow} transform="translate(0, 2)"/>
-    <path d="M72 55 L88 80 H68 Z" fill={C.redShadow} transform="translate(0, 2)"/>
-    {/* 翅膀 */}
-    <path d="M28 55 L12 80 H32 Z" fill={C.red}/>
-    <path d="M72 55 L88 80 H68 Z" fill={C.red}/>
-    {/* 火箭身体阴影 */}
-    <ellipse cx="50" cy="48" rx="22" ry="42" fill={C.grey} transform="translate(0, 3)"/>
-    {/* 火箭身体 */}
-    <ellipse cx="50" cy="45" rx="22" ry="42" fill={C.white}/>
-    {/* 窗口 - Duo 脸 */}
-    <circle cx="50" cy="38" r="16" fill={C.blueShadow}/>
-    <circle cx="50" cy="36" r="14" fill={C.blue}/>
-    {/* Duo 在窗口里 */}
-    <circle cx="44" cy="34" r="4" fill={C.white}/>
-    <circle cx="56" cy="34" r="4" fill={C.white}/>
-    <circle cx="45" cy="35" r="2.5" fill={C.black}/>
-    <circle cx="57" cy="35" r="2.5" fill={C.black}/>
-    <circle cx="46" cy="34" r="1" fill={C.white}/>
-    <circle cx="58" cy="34" r="1" fill={C.white}/>
-    {/* 小嘴 */}
-    <path d="M48 42 L50 45 L52 42 Z" fill={C.orange}/>
-    {/* 装饰条纹 */}
-    <rect x="46" y="60" width="8" height="10" rx="4" fill={C.red}/>
-  </svg>
+export const SparkIcon: React.FC<IconProps> = ({ className }) => (
+  <IconBase className={className}>
+    <path d="m32 9 4.5 11.6L48 25l-11.5 4.4L32 41l-4.5-11.6L16 25l11.5-4.4L32 9Z" fill={C.gold} stroke={C.ink} strokeWidth="2.2" />
+    <circle cx="18" cy="17" r="3.2" fill={C.orange} />
+    <circle cx="47" cy="14" r="2.6" fill={C.blue} />
+    <circle cx="48" cy="42" r="3" fill={C.pink} />
+    <circle cx="17" cy="41" r="2.5" fill={C.green} />
+  </IconBase>
 );
 
-// 👑 皇冠 - 金色可爱皇冠角色
-export const CrownIcon: React.FC<IconProps> = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 100 100" fill="none" className={className}>
-    {/* 阴影层 */}
-    <path
-      d="M18 72 L8 28 L28 48 L50 12 L72 48 L92 28 L82 72 Z"
-      fill={C.yellowShadow}
-      transform="translate(0, 3)"
-    />
-    {/* 主体 */}
-    <path
-      d="M18 72 L8 28 L28 48 L50 12 L72 48 L92 28 L82 72 Z"
-      fill={C.yellow}
-    />
-    {/* 内部高光 */}
-    <path
-      d="M24 68 L16 35 L30 50 L50 22 L70 50 L84 35 L76 68 Z"
-      fill={C.yellowLight}
-      opacity="0.5"
-    />
-    {/* 底座阴影 */}
-    <rect x="18" y="72" width="64" height="16" rx="5" fill={C.yellowShadow} transform="translate(0, 3)"/>
-    {/* 底座 */}
-    <rect x="18" y="72" width="64" height="16" rx="5" fill={C.yellow}/>
-    {/* 宝石 */}
-    <circle cx="30" cy="79" r="5" fill={C.red}/>
-    <circle cx="50" cy="79" r="6" fill={C.red}/>
-    <circle cx="70" cy="79" r="5" fill={C.red}/>
-    {/* 宝石高光 */}
-    <circle cx="31" cy="77" r="2" fill={C.white} opacity="0.6"/>
-    <circle cx="51" cy="77" r="2.5" fill={C.white} opacity="0.6"/>
-    <circle cx="71" cy="77" r="2" fill={C.white} opacity="0.6"/>
-    {/* 眼睛 */}
-    <ellipse cx="40" cy="50" rx="6" ry="7" fill={C.white}/>
-    <ellipse cx="60" cy="50" rx="6" ry="7" fill={C.white}/>
-    <circle cx="42" cy="52" r="4" fill={C.black}/>
-    <circle cx="62" cy="52" r="4" fill={C.black}/>
-    <circle cx="43" cy="50" r="1.5" fill={C.white}/>
-    <circle cx="63" cy="50" r="1.5" fill={C.white}/>
-    {/* 开心嘴巴 */}
-    <path d="M44 62 Q50 68 56 62" stroke={C.yellowShadow} strokeWidth="3" strokeLinecap="round" fill="none"/>
-  </svg>
+export const SurgeIcon: React.FC<IconProps> = ({ className }) => (
+  <IconBase className={className}>
+    <path d="m19 14 12 7-3 9 11-4 7 4-12 20 3-11-10 3 5-12-13 2 10-18Z" fill={C.blue} stroke={C.ink} strokeWidth="2.2" />
+    <path d="m29 20 4 2-1 5 6-2 3 2-6 10 1-5-6 2 3-7-6 1 2-8Z" fill={C.blueLight} />
+  </IconBase>
 );
 
-// ⭐ 星星 - 可爱星星角色
-export const StarIcon: React.FC<IconProps> = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 100 100" fill="none" className={className}>
-    {/* 阴影层 */}
-    <path
-      d="M50 8 L59 38 H90 L65 56 L74 88 L50 68 L26 88 L35 56 L10 38 H41 Z"
-      fill={C.yellowShadow}
-      transform="translate(0, 3)"
-    />
-    {/* 主体 */}
-    <path
-      d="M50 8 L59 38 H90 L65 56 L74 88 L50 68 L26 88 L35 56 L10 38 H41 Z"
-      fill={C.yellow}
-    />
-    {/* 内部高光 */}
-    <path
-      d="M50 18 L56 40 H76 L60 52 L66 74 L50 62 L34 74 L40 52 L24 40 H44 Z"
-      fill={C.yellowLight}
-      opacity="0.5"
-    />
-    {/* 眼睛 */}
-    <ellipse cx="42" cy="48" rx="6" ry="7" fill={C.white}/>
-    <ellipse cx="58" cy="48" rx="6" ry="7" fill={C.white}/>
-    <circle cx="44" cy="50" r="4" fill={C.black}/>
-    <circle cx="60" cy="50" r="4" fill={C.black}/>
-    <circle cx="45" cy="48" r="1.5" fill={C.white}/>
-    <circle cx="61" cy="48" r="1.5" fill={C.white}/>
-    {/* 开心嘴巴 */}
-    <path d="M45 60 Q50 66 55 60" stroke={C.yellowShadow} strokeWidth="3" strokeLinecap="round" fill="none"/>
-    {/* 腮红 */}
-    <ellipse cx="34" cy="54" rx="4" ry="2.5" fill={C.orange} opacity="0.4"/>
-    <ellipse cx="66" cy="54" rx="4" ry="2.5" fill={C.orange} opacity="0.4"/>
-  </svg>
+export const MeteorIcon: React.FC<IconProps> = ({ className }) => (
+  <IconBase className={className}>
+    <path d="M14 20c9 1.2 16.2 4 23.5 11.3" stroke={C.orange} strokeWidth="5" />
+    <path d="M11 29c6.8.6 12.8 2.7 18.6 8.1" stroke={C.goldLight} strokeWidth="4" />
+    <path d="M42 17c6.8 0 12 5.2 12 11.8S48.8 41 42 41s-12-5.4-12-12.2S35.2 17 42 17Z" fill={C.red} stroke={C.ink} strokeWidth="2.2" />
+    <path d="M42 22c3.7 0 6.6 2.9 6.6 6.8 0 3.8-2.9 6.8-6.6 6.8-3.7 0-6.6-3-6.6-6.8 0-3.9 2.9-6.8 6.6-6.8Z" fill={C.orange} />
+  </IconBase>
 );
 
-// 💎 钻石 - Zari 风格紫色钻石角色
-export const DiamondIcon: React.FC<IconProps> = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 100 100" fill="none" className={className}>
-    {/* 阴影层 */}
-    <path
-      d="M16 36 L50 92 L84 36 L70 10 H30 Z"
-      fill={C.purpleShadow}
-      transform="translate(0, 3)"
-    />
-    {/* 主体 */}
-    <path
-      d="M16 36 L50 92 L84 36 L70 10 H30 Z"
-      fill={C.purple}
-    />
-    {/* 高光面 */}
-    <path d="M30 10 L50 36 L70 10" fill="#F0D4FF"/>
-    <path d="M16 36 L30 10 L50 36" fill={C.purpleLight}/>
-    <path d="M84 36 L70 10 L50 36" fill={C.purpleLight}/>
-    {/* 内部反射 */}
-    <path d="M50 36 L40 55 L50 75 L60 55 Z" fill={C.white} opacity="0.2"/>
-    {/* 眼睛 - 闪亮眼睛 */}
-    <ellipse cx="40" cy="48" rx="7" ry="8" fill={C.white}/>
-    <ellipse cx="60" cy="48" rx="7" ry="8" fill={C.white}/>
-    <circle cx="42" cy="50" r="4.5" fill={C.purpleShadow}/>
-    <circle cx="62" cy="50" r="4.5" fill={C.purpleShadow}/>
-    <circle cx="44" cy="48" r="2" fill={C.white}/>
-    <circle cx="64" cy="48" r="2" fill={C.white}/>
-    {/* 优雅微笑 */}
-    <path d="M44 64 Q50 70 56 64" stroke={C.white} strokeWidth="3" strokeLinecap="round" fill="none"/>
-    {/* 闪光装饰 */}
-    <circle cx="25" cy="25" r="3" fill={C.white} opacity="0.8"/>
-    <circle cx="78" cy="20" r="2" fill={C.white} opacity="0.6"/>
-  </svg>
+export const NovaIcon: React.FC<IconProps> = ({ className }) => (
+  <IconBase className={className}>
+    <path d="m32 8 6 15 16 6-16 6-6 15-6-15-16-6 16-6 6-15Z" fill={C.purple} stroke={C.ink} strokeWidth="2.2" />
+    <path d="m32 16 3.8 9.2L45 29l-9.2 3.8L32 42l-3.8-9.2L19 29l9.2-3.8L32 16Z" fill={C.purpleLight} />
+    <circle cx="32" cy="29" r="4.2" fill={C.white} />
+  </IconBase>
 );
 
-// 🏆 奖杯 - 金色可爱奖杯
-export const TrophyIcon: React.FC<IconProps> = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 100 100" fill="none" className={className}>
-    {/* 把手阴影 */}
-    <path d="M22 30 H12 C6 30 6 52 14 52 H24" stroke={C.yellowShadow} strokeWidth="8" strokeLinecap="round" fill="none" transform="translate(0, 3)"/>
-    <path d="M78 30 H88 C94 30 94 52 86 52 H76" stroke={C.yellowShadow} strokeWidth="8" strokeLinecap="round" fill="none" transform="translate(0, 3)"/>
-    {/* 把手 */}
-    <path d="M22 30 H12 C6 30 6 52 14 52 H24" stroke={C.yellow} strokeWidth="8" strokeLinecap="round" fill="none"/>
-    <path d="M78 30 H88 C94 30 94 52 86 52 H76" stroke={C.yellow} strokeWidth="8" strokeLinecap="round" fill="none"/>
-    {/* 杯身阴影 */}
-    <path d="M26 16 H74 V32 C74 56 64 66 50 66 C36 66 26 56 26 32 V16 Z" fill={C.yellowShadow} transform="translate(0, 3)"/>
-    {/* 杯身 */}
-    <path d="M26 16 H74 V32 C74 56 64 66 50 66 C36 66 26 56 26 32 V16 Z" fill={C.yellow}/>
-    {/* 杯身高光 */}
-    <path d="M32 20 H68 V32 C68 50 60 58 50 60 C40 58 32 50 32 32 V20 Z" fill={C.yellowLight} opacity="0.5"/>
-    {/* 眼睛 */}
-    <ellipse cx="40" cy="38" rx="7" ry="8" fill={C.white}/>
-    <ellipse cx="60" cy="38" rx="7" ry="8" fill={C.white}/>
-    <circle cx="42" cy="40" r="4.5" fill={C.black}/>
-    <circle cx="62" cy="40" r="4.5" fill={C.black}/>
-    <circle cx="44" cy="38" r="2" fill={C.white}/>
-    <circle cx="64" cy="38" r="2" fill={C.white}/>
-    {/* 开心嘴巴 */}
-    <path d="M44 52 Q50 58 56 52" stroke={C.yellowShadow} strokeWidth="3" strokeLinecap="round" fill="none"/>
-    {/* 底座 */}
-    <rect x="38" y="68" width="24" height="8" rx="3" fill={C.yellowShadow} transform="translate(0, 2)"/>
-    <rect x="38" y="66" width="24" height="8" rx="3" fill={C.yellow}/>
-    <rect x="30" y="76" width="40" height="12" rx="4" fill={C.yellowShadow} transform="translate(0, 2)"/>
-    <rect x="30" y="74" width="40" height="12" rx="4" fill={C.yellow}/>
-  </svg>
+export const RegalCrownIcon: React.FC<IconProps> = ({ className }) => (
+  <IconBase className={className}>
+    <path d="m11 42 6-19 11 10 4-15 4 15 11-10 6 19-8 10H19l-8-10Z" fill={C.gold} stroke={C.ink} strokeWidth="2.2" />
+    <path d="M18 44h28" stroke={C.goldLight} strokeWidth="3.5" />
+    <rect x="17" y="44" width="30" height="9" rx="4.5" fill={C.orange} stroke={C.ink} strokeWidth="2.2" />
+    <circle cx="21" cy="46.5" r="2.2" fill={C.red} />
+    <circle cx="32" cy="48" r="2.8" fill={C.blue} />
+    <circle cx="43" cy="46.5" r="2.2" fill={C.purple} />
+  </IconBase>
 );
 
-// 🏅 奖牌 - 可爱奖牌角色
-export const MedalIcon: React.FC<IconProps> = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 100 100" fill="none" className={className}>
-    {/* 丝带 */}
-    <path d="M32 5 L26 45 L50 55 L74 45 L68 5 H32 Z" fill={C.redShadow} transform="translate(0, 2)"/>
-    <path d="M32 5 L26 45 L50 55 L74 45 L68 5 H32 Z" fill={C.red}/>
-    {/* 丝带条纹 */}
-    <path d="M38 5 L34 45 L50 52 L50 5 H38 Z" fill={C.redLight}/>
-    <path d="M62 5 L66 45 L50 52 L50 5 H62 Z" fill={C.redLight}/>
-    {/* 奖牌阴影 */}
-    <circle cx="50" cy="68" r="28" fill={C.yellowShadow} transform="translate(0, 3)"/>
-    {/* 奖牌主体 */}
-    <circle cx="50" cy="65" r="28" fill={C.yellow}/>
-    {/* 奖牌内圈 */}
-    <circle cx="50" cy="65" r="22" fill={C.yellowLight}/>
-    {/* 眼睛 */}
-    <ellipse cx="42" cy="62" rx="6" ry="7" fill={C.white}/>
-    <ellipse cx="58" cy="62" rx="6" ry="7" fill={C.white}/>
-    <circle cx="44" cy="64" r="4" fill={C.black}/>
-    <circle cx="60" cy="64" r="4" fill={C.black}/>
-    <circle cx="45" cy="62" r="1.5" fill={C.white}/>
-    <circle cx="61" cy="62" r="1.5" fill={C.white}/>
-    {/* 开心嘴巴 */}
-    <path d="M45 75 Q50 81 55 75" stroke={C.yellowShadow} strokeWidth="3" strokeLinecap="round" fill="none"/>
-    {/* 腮红 */}
-    <ellipse cx="34" cy="68" rx="4" ry="2.5" fill={C.orange} opacity="0.4"/>
-    <ellipse cx="66" cy="68" rx="4" ry="2.5" fill={C.orange} opacity="0.4"/>
-  </svg>
+export const BookmarkIcon: React.FC<IconProps> = ({ className }) => (
+  <IconBase className={className}>
+    <path d="M20 10h20a6 6 0 0 1 6 6v37L30 43 14 53V16a6 6 0 0 1 6-6Z" fill={C.blue} stroke={C.ink} strokeWidth="2.2" />
+    <path d="M23 17h14M23 24h14M23 31h10" stroke={C.white} strokeWidth="2.8" opacity="0.95" />
+  </IconBase>
 );
 
-// 📚 书本 - Duo 读书
-export const BookIcon: React.FC<IconProps> = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 100 100" fill="none" className={className}>
-    {/* 书皮阴影 */}
-    <rect x="14" y="28" width="72" height="65" rx="6" fill={C.blueShadow} transform="translate(0, 3)"/>
-    {/* 书皮 */}
-    <rect x="14" y="25" width="72" height="65" rx="6" fill={C.blue}/>
-    {/* 书页 */}
-    <rect x="18" y="30" width="64" height="57" rx="4" fill={C.white}/>
-    {/* Duo 从书后面探出头 */}
-    <ellipse cx="50" cy="24" rx="24" ry="22" fill={C.greenShadow} transform="translate(0, 2)"/>
-    <ellipse cx="50" cy="22" rx="24" ry="22" fill={C.green}/>
-    {/* 耳朵 */}
-    <path d="M30 12 Q26 4 32 8 L36 16 Z" fill={C.green}/>
-    <path d="M70 12 Q74 4 68 8 L64 16 Z" fill={C.green}/>
-    {/* Duo 眼睛 */}
-    <circle cx="42" cy="18" r="8" fill={C.white}/>
-    <circle cx="58" cy="18" r="8" fill={C.white}/>
-    <circle cx="44" cy="20" r="5" fill={C.black}/>
-    <circle cx="60" cy="20" r="5" fill={C.black}/>
-    <circle cx="46" cy="18" r="2" fill={C.white}/>
-    <circle cx="62" cy="18" r="2" fill={C.white}/>
-    {/* Duo 嘴巴 */}
-    <path d="M46 30 L50 36 L54 30 Z" fill={C.orange}/>
-    {/* 文字线条 */}
-    <line x1="26" y1="50" x2="74" y2="50" stroke={C.grey} strokeWidth="4" strokeLinecap="round"/>
-    <line x1="26" y1="62" x2="74" y2="62" stroke={C.grey} strokeWidth="4" strokeLinecap="round"/>
-    <line x1="26" y1="74" x2="58" y2="74" stroke={C.grey} strokeWidth="4" strokeLinecap="round"/>
-  </svg>
+export const LibraryIcon: React.FC<IconProps> = ({ className }) => (
+  <IconBase className={className}>
+    <rect x="11" y="16" width="12" height="35" rx="4" fill={C.red} stroke={C.ink} strokeWidth="2.2" />
+    <rect x="22" y="12" width="12" height="39" rx="4" fill={C.gold} stroke={C.ink} strokeWidth="2.2" />
+    <rect x="33" y="18" width="12" height="33" rx="4" fill={C.green} stroke={C.ink} strokeWidth="2.2" />
+    <path d="M18 22v22M28 18v24M39 24v18" stroke={C.white} strokeWidth="2.2" opacity="0.8" />
+  </IconBase>
 );
 
-// 🗺️ 探险家 - Eddy 风格探险家
-export const ExplorerIcon: React.FC<IconProps> = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 100 100" fill="none" className={className}>
-    {/* 阴影层 */}
-    <ellipse cx="50" cy="58" rx="30" ry="34" fill={C.yellowShadow} transform="translate(0, 3)"/>
-    {/* 身体 - 黄橙色圆润 */}
-    <ellipse cx="50" cy="55" rx="30" ry="34" fill={C.skinLight}/>
-    {/* 头发 */}
-    <ellipse cx="50" cy="28" rx="26" ry="14" fill="#8B4513"/>
-    {/* 探险帽阴影 */}
-    <path d="M16 35 H84 V42 C84 45 80 48 76 48 H24 C20 48 16 45 16 42 V35 Z" fill="#8B6914" transform="translate(0, 2)"/>
-    <ellipse cx="50" cy="28" rx="22" ry="12" fill="#8B6914" transform="translate(0, 2)"/>
-    {/* 探险帽 */}
-    <path d="M16 35 H84 V42 C84 45 80 48 76 48 H24 C20 48 16 45 16 42 V35 Z" fill="#C9A227"/>
-    <ellipse cx="50" cy="26" rx="22" ry="12" fill="#C9A227"/>
-    {/* 帽带 */}
-    <rect x="28" y="28" width="44" height="5" fill="#8B4513"/>
-    {/* 眼睛 */}
-    <ellipse cx="40" cy="55" rx="8" ry="9" fill={C.white}/>
-    <ellipse cx="60" cy="55" rx="8" ry="9" fill={C.white}/>
-    <circle cx="42" cy="57" r="5" fill={C.black}/>
-    <circle cx="62" cy="57" r="5" fill={C.black}/>
-    <circle cx="44" cy="55" r="2" fill={C.white}/>
-    <circle cx="64" cy="55" r="2" fill={C.white}/>
-    {/* 微笑 */}
-    <path d="M42 72 Q50 80 58 72" stroke="#C4A484" strokeWidth="3" strokeLinecap="round" fill="none"/>
-    {/* 领巾 */}
-    <path d="M35 88 L50 98 L65 88 Z" fill={C.redShadow} transform="translate(0, 2)"/>
-    <path d="M35 86 L50 96 L65 86 Z" fill={C.red}/>
-  </svg>
+export const OwlGemIcon: React.FC<IconProps> = ({ className }) => (
+  <IconBase className={className}>
+    <path d="M17 38c0-10.6 6.6-17 15-17 3.9 0 7 1.3 9.3 3.9 2.1-2.6 5-3.9 8.9-3.9 8.1 0 13.8 6.3 13.8 15.4C64 49 52 57 40.5 57 27.6 57 17 49.5 17 38Z" fill={C.green} stroke={C.ink} strokeWidth="2.2" />
+    <circle cx="27.5" cy="34.5" r="6.2" fill={C.white} stroke={C.ink} strokeWidth="2" />
+    <circle cx="41" cy="34.5" r="6.2" fill={C.white} stroke={C.ink} strokeWidth="2" />
+    <circle cx="29.5" cy="36.5" r="2.8" fill={C.ink} />
+    <circle cx="43" cy="36.5" r="2.8" fill={C.ink} />
+    <path d="m32.8 43.5 3 4 3-4" fill={C.orange} />
+  </IconBase>
 );
 
-// 💪 传奇 - 举起奖杯的 Duo
-export const LegendIcon: React.FC<IconProps> = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 100 100" fill="none" className={className}>
-    {/* 手臂阴影 */}
-    <path d="M15 95 V60 C15 52 22 50 28 55 V45" stroke={C.greenShadow} strokeWidth="14" strokeLinecap="round" fill="none" transform="translate(0, 2)"/>
-    <path d="M85 95 V60 C85 52 78 50 72 55 V45" stroke={C.greenShadow} strokeWidth="14" strokeLinecap="round" fill="none" transform="translate(0, 2)"/>
-    {/* 手臂 - Duo 绿色 */}
-    <path d="M15 95 V60 C15 52 22 50 28 55 V45" stroke={C.green} strokeWidth="14" strokeLinecap="round" fill="none"/>
-    <path d="M85 95 V60 C85 52 78 50 72 55 V45" stroke={C.green} strokeWidth="14" strokeLinecap="round" fill="none"/>
-    {/* 奖杯阴影 */}
-    <path d="M30 10 H70 V22 C70 38 62 44 50 44 C38 44 30 38 30 22 V10 Z" fill={C.yellowShadow} transform="translate(0, 3)"/>
-    {/* 奖杯 */}
-    <path d="M30 10 H70 V22 C70 38 62 44 50 44 C38 44 30 38 30 22 V10 Z" fill={C.yellow}/>
-    {/* 奖杯高光 */}
-    <path d="M36 14 H64 V22 C64 34 58 38 50 40 C42 38 36 34 36 22 V14 Z" fill={C.yellowLight} opacity="0.5"/>
-    {/* 奖杯眼睛 */}
-    <ellipse cx="43" cy="24" rx="5" ry="6" fill={C.white}/>
-    <ellipse cx="57" cy="24" rx="5" ry="6" fill={C.white}/>
-    <circle cx="44" cy="26" r="3.5" fill={C.black}/>
-    <circle cx="58" cy="26" r="3.5" fill={C.black}/>
-    <circle cx="45.5" cy="24.5" r="1.5" fill={C.white}/>
-    <circle cx="59.5" cy="24.5" r="1.5" fill={C.white}/>
-    {/* 奖杯嘴巴 */}
-    <path d="M46 34 Q50 38 54 34" stroke={C.yellowShadow} strokeWidth="2.5" strokeLinecap="round" fill="none"/>
-    {/* 奖杯底座 */}
-    <rect x="40" y="46" width="20" height="6" rx="3" fill={C.yellowShadow} transform="translate(0, 2)"/>
-    <rect x="40" y="44" width="20" height="6" rx="3" fill={C.yellow}/>
-  </svg>
+export const CompassIcon: React.FC<IconProps> = ({ className }) => (
+  <IconBase className={className}>
+    <circle cx="32" cy="32" r="20" fill={C.cream} stroke={C.ink} strokeWidth="2.2" />
+    <circle cx="32" cy="32" r="14" fill={C.blueLight} />
+    <path d="m32 18 3.5 6M46 32l-6 3.5M32 46l-3.5-6M18 32l6-3.5" stroke={C.ink} strokeWidth="2.4" />
+    <path d="m32 22 6 14-6 6-6-6 6-14Z" fill={C.red} stroke={C.ink} strokeWidth="2" />
+    <path d="m32 42-6-6 6-14 6 14-6 6Z" fill={C.white} opacity="0.75" />
+  </IconBase>
 );
 
-// 🎨 画家 - 艺术家角色（保留）
-export const CrafterIcon: React.FC<IconProps> = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 100 100" fill="none" className={className}>
-    {/* 阴影层 */}
-    <ellipse cx="50" cy="58" rx="30" ry="34" fill={C.pinkShadow} transform="translate(0, 3)"/>
-    {/* 身体 */}
-    <ellipse cx="50" cy="55" rx="30" ry="34" fill={C.skinPink}/>
-    {/* 头发 */}
-    <ellipse cx="50" cy="28" rx="28" ry="16" fill={C.purple}/>
-    {/* 贝雷帽阴影 */}
-    <ellipse cx="50" cy="22" rx="28" ry="12" fill={C.redShadow} transform="translate(0, 2)"/>
-    {/* 贝雷帽 */}
-    <ellipse cx="50" cy="20" rx="28" ry="12" fill={C.red}/>
-    <circle cx="50" cy="10" r="5" fill={C.red}/>
-    {/* 眼睛 */}
-    <ellipse cx="40" cy="52" rx="8" ry="9" fill={C.white}/>
-    <ellipse cx="60" cy="52" rx="8" ry="9" fill={C.white}/>
-    <circle cx="42" cy="54" r="5" fill={C.black}/>
-    <circle cx="62" cy="54" r="5" fill={C.black}/>
-    <circle cx="44" cy="52" r="2" fill={C.white}/>
-    <circle cx="64" cy="52" r="2" fill={C.white}/>
-    {/* 微笑 */}
-    <path d="M42 70 Q50 78 58 70" stroke={C.pinkShadow} strokeWidth="3" strokeLinecap="round" fill="none"/>
-    {/* 腮红 */}
-    <ellipse cx="30" cy="60" rx="5" ry="3" fill={C.pink} opacity="0.5"/>
-    <ellipse cx="70" cy="60" rx="5" ry="3" fill={C.pink} opacity="0.5"/>
-  </svg>
+export const MountainIcon: React.FC<IconProps> = ({ className }) => (
+  <IconBase className={className}>
+    <path d="M11 50 25 24l13 26H11Z" fill={C.green} stroke={C.ink} strokeWidth="2.2" />
+    <path d="M26 50 40 16l13 34H26Z" fill={C.blue} stroke={C.ink} strokeWidth="2.2" />
+    <path d="m35 24 5-8 4 10-4-2-3 4-2-4Z" fill={C.white} />
+    <path d="M14 53h39" stroke={C.brownDark} strokeWidth="4" />
+  </IconBase>
 );
 
-// 🎊 啦啦队 - Zari 风格
-export const CheerleaderIcon: React.FC<IconProps> = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 100 100" fill="none" className={className}>
-    {/* 阴影层 */}
-    <ellipse cx="50" cy="58" rx="30" ry="34" fill="#A0826D" transform="translate(0, 3)"/>
-    {/* 身体 */}
-    <ellipse cx="50" cy="55" rx="30" ry="34" fill={C.skinDark}/>
-    {/* 头发 */}
-    <ellipse cx="50" cy="26" rx="32" ry="18" fill={C.black}/>
-    {/* 大蝴蝶结 */}
-    <path d="M18 18 L40 32 L30 42 Z" fill={C.pink}/>
-    <path d="M82 18 L60 32 L70 42 Z" fill={C.pink}/>
-    <circle cx="50" cy="25" r="10" fill={C.pink}/>
-    <circle cx="50" cy="25" r="6" fill={C.pinkShadow}/>
-    {/* 眼睛 */}
-    <ellipse cx="40" cy="52" rx="8" ry="9" fill={C.white}/>
-    <ellipse cx="60" cy="52" rx="8" ry="9" fill={C.white}/>
-    <circle cx="42" cy="54" r="5" fill={C.black}/>
-    <circle cx="62" cy="54" r="5" fill={C.black}/>
-    <circle cx="44" cy="52" r="2" fill={C.white}/>
-    <circle cx="64" cy="52" r="2" fill={C.white}/>
-    {/* 开心嘴巴 */}
-    <path d="M42 70 Q50 78 58 70" stroke="#A0826D" strokeWidth="3" strokeLinecap="round" fill="none"/>
-    {/* 腮红 */}
-    <ellipse cx="30" cy="60" rx="5" ry="3" fill={C.pink} opacity="0.5"/>
-    <ellipse cx="70" cy="60" rx="5" ry="3" fill={C.pink} opacity="0.5"/>
-  </svg>
+export const RibbonIcon: React.FC<IconProps> = ({ className }) => (
+  <IconBase className={className}>
+    <path d="M21 11h22l-4 18H25l-4-18Z" fill={C.blue} stroke={C.ink} strokeWidth="2.2" />
+    <path d="M25 29h14v15l-7-4.5-7 4.5V29Z" fill={C.red} stroke={C.ink} strokeWidth="2.2" />
+    <circle cx="32" cy="25" r="8.8" fill={C.gold} stroke={C.ink} strokeWidth="2.2" />
+    <path d="m32 20 1.8 3.6 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4-2.9-2.8 4-.6L32 20Z" fill={C.orange} />
+  </IconBase>
 );
 
-// 🐻 早晨熊 - 可爱睡熊（保留）
-export const MorningBearIcon: React.FC<IconProps> = ({ className = "w-full h-full" }) => (
-  <svg viewBox="0 0 100 100" fill="none" className={className}>
-    {/* 耳朵阴影 */}
-    <circle cx="26" cy="25" r="12" fill="#8B6914" transform="translate(0, 2)"/>
-    <circle cx="74" cy="25" r="12" fill="#8B6914" transform="translate(0, 2)"/>
-    {/* 耳朵 */}
-    <circle cx="26" cy="23" r="12" fill="#C49A6C"/>
-    <circle cx="74" cy="23" r="12" fill="#C49A6C"/>
-    <circle cx="26" cy="23" r="7" fill="#E8D4C4"/>
-    <circle cx="74" cy="23" r="7" fill="#E8D4C4"/>
-    {/* 身体阴影 */}
-    <ellipse cx="50" cy="58" rx="32" ry="36" fill="#A67C52" transform="translate(0, 3)"/>
-    {/* 身体 */}
-    <ellipse cx="50" cy="55" rx="32" ry="36" fill="#C49A6C"/>
-    {/* 嘴部区域 */}
-    <ellipse cx="50" cy="68" rx="16" ry="12" fill="#E8D4C4"/>
-    {/* 鼻子 */}
-    <ellipse cx="50" cy="62" rx="5" ry="3.5" fill={C.black}/>
-    {/* 嘴巴 */}
-    <path d="M50 65 V70 M44 70 Q50 74 56 70" stroke={C.black} strokeWidth="2.5" strokeLinecap="round" fill="none"/>
-    {/* 闭着的眼睛 - 睡觉 */}
-    <path d="M34 50 Q40 46 46 50" stroke={C.black} strokeWidth="3" strokeLinecap="round" fill="none"/>
-    <path d="M54 50 Q60 46 66 50" stroke={C.black} strokeWidth="3" strokeLinecap="round" fill="none"/>
-    {/* 睡帽 */}
-    <path d="M28 28 Q42 5 62 12 Q75 18 78 30" fill={C.blueShadow} transform="translate(0, 2)"/>
-    <path d="M28 26 Q42 3 62 10 Q75 16 78 28" fill={C.blue}/>
-    <circle cx="78" cy="26" r="6" fill={C.white}/>
-    {/* Zzz */}
-    <path d="M82 48 L90 48 L82 58 L90 58" stroke={C.blue} strokeWidth="3" fill="none"/>
-  </svg>
+export const MedallionIcon: React.FC<IconProps> = ({ className }) => (
+  <IconBase className={className}>
+    <path d="m23 10 9 14 9-14" stroke={C.red} strokeWidth="8" />
+    <circle cx="32" cy="37" r="15" fill={C.gold} stroke={C.ink} strokeWidth="2.2" />
+    <circle cx="32" cy="37" r="9.2" fill={C.goldLight} />
+    <path d="M26 37h12" stroke={C.orangeDeep} strokeWidth="3" />
+    <path d="M32 31v12" stroke={C.orangeDeep} strokeWidth="3" />
+  </IconBase>
 );
 
-// ==================== 导出配置 ====================
+export const LaurelIcon: React.FC<IconProps> = ({ className }) => (
+  <IconBase className={className}>
+    <path d="M23 47c-8-4.9-11.9-11.7-11.9-20.5 6.8 1.9 12 5.9 15.7 12.2M41 47c8-4.9 11.9-11.7 11.9-20.5-6.8 1.9-12 5.9-15.7 12.2" stroke={C.green} strokeWidth="4" />
+    <path d="m32 16 4.2 8.4 9.3 1.4-6.8 6.5 1.6 9.2L32 37l-8.3 4.5 1.6-9.2-6.8-6.5 9.3-1.4L32 16Z" fill={C.gold} stroke={C.ink} strokeWidth="2" />
+  </IconBase>
+);
+
+export const GlobeIcon: React.FC<IconProps> = ({ className }) => (
+  <IconBase className={className}>
+    <circle cx="32" cy="32" r="18" fill={C.blue} stroke={C.ink} strokeWidth="2.2" />
+    <path d="M21 24c2-1.6 4.3-2.4 6.8-2.4 4.2 0 6.7 2.8 9.7 2.8 2.2 0 4.3-.8 6.3-2.5 2.1 2.3 3.4 5.1 4 8.4-2.3 2-4.7 3-7.3 3-3.9 0-6.2-2.6-9.3-2.6-2.6 0-5 1-7.3 3-2.5-1.9-4.2-4.3-5.1-7.3 1-1.1 1.8-1.9 2.2-2.4Z" fill={C.greenLight} />
+    <path d="M32 14c4.2 4.8 6.3 10.8 6.3 18s-2.1 13.2-6.3 18c-4.2-4.8-6.3-10.8-6.3-18s2.1-13.2 6.3-18ZM14 32h36" stroke={C.white} strokeWidth="2" opacity="0.8" />
+  </IconBase>
+);
+
+export const PrismIcon: React.FC<IconProps> = ({ className }) => (
+  <IconBase className={className}>
+    <path d="M20 22h24l8 11-20 19-20-19 8-11Z" fill={C.purple} stroke={C.ink} strokeWidth="2.2" />
+    <path d="m20 22 12 11 12-11M12 33h40M32 33v19" stroke={C.white} strokeWidth="2" opacity="0.8" />
+    <path d="m25 21 7 11 7-11" stroke={C.purpleLight} strokeWidth="3" />
+  </IconBase>
+);
 
 export const AchievementIconMap = {
-  flame: FlameIcon,
-  bolt: BoltBirdIcon,
-  duo: DuoOwlIcon,
-  boxer: BoxerIcon,
-  bear: MorningBearIcon,
-  explorer: ExplorerIcon,
-  crafter: CrafterIcon,
-  cheerleader: CheerleaderIcon,
-  legend: LegendIcon,
-  trophy: TrophyIcon,
-  crown: CrownIcon,
-  calendar: CalendarIcon,
-  rocket: RocketIcon,
-  star: StarIcon,
-  diamond: DiamondIcon,
-  medal: MedalIcon,
-  book: BookIcon,
+  ember: EmberIcon,
+  torch: TorchIcon,
+  orbit: OrbitIcon,
+  gauntlet: GauntletIcon,
+  sundial: SundialIcon,
+  spark: SparkIcon,
+  surge: SurgeIcon,
+  meteor: MeteorIcon,
+  nova: NovaIcon,
+  regalCrown: RegalCrownIcon,
+  bookmark: BookmarkIcon,
+  library: LibraryIcon,
+  owlGem: OwlGemIcon,
+  compass: CompassIcon,
+  mountain: MountainIcon,
+  ribbon: RibbonIcon,
+  medallion: MedallionIcon,
+  laurel: LaurelIcon,
+  globe: GlobeIcon,
+  prism: PrismIcon,
+  trophy: MedallionIcon,
+  calendar: SundialIcon,
 } as const;
 
 export type AchievementIconType = keyof typeof AchievementIconMap;
