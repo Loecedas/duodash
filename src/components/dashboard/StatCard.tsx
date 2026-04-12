@@ -1,17 +1,21 @@
 import React from 'react';
 import { StatCardColors } from '../../styles/duolingoColors';
+import { AppIcon, type IconMode } from '../icons/AppIcon';
 
-const ICON_COLOR_MAP: Record<string, string> = {
-  '⚡': StatCardColors.totalXp,
-  '📅': StatCardColors.accountAge,
-  '📚': StatCardColors.courses,
-  '⏱️': StatCardColors.learningTime,
-  '🔥': StatCardColors.streak,
-  '💎': StatCardColors.gems,
+const ICON_COLOR_MAP = {
+  bolt: StatCardColors.totalXp,
+  calendar: StatCardColors.accountAge,
+  books: StatCardColors.courses,
+  stopwatch: StatCardColors.learningTime,
+  flame: StatCardColors.streak,
+  gem: StatCardColors.gems,
 };
 
+type StatCardIconName = keyof typeof ICON_COLOR_MAP;
+
 interface StatCardProps {
-  icon: string;
+  iconName: StatCardIconName;
+  iconMode: IconMode;
   value: string | number;
   label: string;
   colorClass?: string;
@@ -21,7 +25,8 @@ interface StatCardProps {
 }
 
 export function StatCard({
-  icon,
+  iconName,
+  iconMode,
   value,
   label,
   colorClass,
@@ -29,16 +34,16 @@ export function StatCard({
   seq,
   isLargeText = true,
 }: StatCardProps): React.ReactElement {
-  const iconColor = ICON_COLOR_MAP[icon];
+  const iconColor = ICON_COLOR_MAP[iconName];
   const valueColor = color || iconColor;
 
   return (
-    <div className={`bg-white rounded-2xl p-4 shadow-sm border-2 border-b-4 border-gray-200 animate-seq seq-${seq}`}>
+    <div className={`animate-seq seq-${seq} rounded-2xl border-2 border-b-4 border-gray-200 bg-white p-4 shadow-sm`}>
       <div
-        className="text-2xl mb-1"
-        style={iconColor ? { filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))' } : undefined}
+        className="mb-1"
+        style={iconColor ? { color: iconColor, filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))' } : undefined}
       >
-        {icon}
+        <AppIcon name={iconName} mode={iconMode} size="lg" />
       </div>
       <div
         className={`${isLargeText ? 'text-2xl' : 'text-lg'} font-extrabold ${!valueColor ? colorClass : ''}`}
@@ -46,7 +51,7 @@ export function StatCard({
       >
         {value}
       </div>
-      <div className="text-xs text-gray-500 font-bold">{label}</div>
+      <div className="text-xs font-bold text-gray-500">{label}</div>
     </div>
   );
 }

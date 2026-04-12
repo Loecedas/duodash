@@ -1,16 +1,18 @@
 import React from 'react';
 import type { UserData } from '../../types';
+import { AppIcon, type IconMode } from '../icons/AppIcon';
 
 interface PageHeaderProps {
   userData: UserData | null;
   viewData: UserData;
+  iconMode: IconMode;
 }
 
-export function PageHeader({ userData, viewData }: PageHeaderProps): React.ReactElement {
+export function PageHeader({ userData, viewData, iconMode }: PageHeaderProps): React.ReactElement {
   return (
     <div className="mb-10 animate-fade-in-up delay-1">
-      <h1 className="text-4xl font-extrabold text-gray-800 mb-2">学习数据概览</h1>
-      <p className="text-base text-gray-600 mb-4">
+      <h1 className="mb-2 text-4xl font-extrabold text-gray-800">学习数据概览</h1>
+      <p className="mb-4 text-base text-gray-600">
         {userData ? (
           <>
             已加入多邻国 <span className="font-semibold text-gray-800">{viewData.accountAgeDays}</span> 天 · 当前重点：
@@ -23,26 +25,26 @@ export function PageHeader({ userData, viewData }: PageHeaderProps): React.React
 
       <div className="flex flex-wrap items-center gap-3">
         {viewData.isPlus && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-sm">
-            <span className="text-white text-base">👑</span>
-            <span className="font-bold text-white text-sm">Super</span>
+          <div className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-3 py-1.5 shadow-sm">
+            <AppIcon name="crown" mode={iconMode} className="text-white" />
+            <span className="text-sm font-bold text-white">Super</span>
           </div>
         )}
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-xl border border-gray-200">
-          <span className="text-red-500 text-base">🔥</span>
-          <span className="font-bold text-gray-700 text-sm">{userData ? viewData.streak : '—'}</span>
+        <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-1.5">
+          <AppIcon name="flame" mode={iconMode} className="text-red-500" />
+          <span className="text-sm font-bold text-gray-700">{userData ? viewData.streak : '—'}</span>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-xl border border-gray-200">
-          <span className="text-blue-400 text-base">💎</span>
-          <span className="font-bold text-gray-700 text-sm">{userData ? viewData.gems.toLocaleString() : '—'}</span>
+        <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-1.5">
+          <AppIcon name="gem" mode={iconMode} className="text-blue-400" />
+          <span className="text-sm font-bold text-gray-700">{userData ? viewData.gems.toLocaleString() : '—'}</span>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-xl border border-gray-200">
-          <span className="text-yellow-500 text-base">🏆</span>
-          <span className="font-bold text-gray-700 text-sm truncate max-w-[150px]" title={viewData.league}>
+        <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-1.5">
+          <AppIcon name="trophy" mode={iconMode} className="text-yellow-500" />
+          <span className="max-w-[150px] truncate text-sm font-bold text-gray-700" title={viewData.league}>
             {viewData.league}
           </span>
           {userData && viewData.leagueTier >= 0 && (
-            <span className="text-xs text-gray-600 font-semibold">T{viewData.leagueTier + 1}</span>
+            <span className="text-xs font-semibold text-gray-600">T{viewData.leagueTier + 1}</span>
           )}
         </div>
       </div>

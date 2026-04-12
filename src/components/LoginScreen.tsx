@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { AppIcon, type IconMode } from './icons/AppIcon';
 
 interface LoginScreenProps {
   onConnect: (username: string, jwt: string) => void;
@@ -6,11 +7,12 @@ interface LoginScreenProps {
   onDemo: () => void;
   loading: boolean;
   error: string | null;
+  iconMode: IconMode;
 }
 
 type LoginMode = 'creds' | 'json';
 
-export function LoginScreen({ onConnect, onJsonInput, onDemo, loading, error }: LoginScreenProps): React.ReactElement {
+export function LoginScreen({ onConnect, onJsonInput, onDemo, loading, error, iconMode }: LoginScreenProps): React.ReactElement {
   const [username, setUsername] = useState('');
   const [jwt, setJwt] = useState('');
   const [mode, setMode] = useState<LoginMode>('json');
@@ -62,8 +64,9 @@ export function LoginScreen({ onConnect, onJsonInput, onDemo, loading, error }: 
             <div className="space-y-4">
               <div className="bg-gray-50 p-4 rounded-xl border-2 border-dashed border-gray-300 text-left space-y-3">
                 <p className="text-sm text-gray-600 font-bold">稳定获取数据步骤：</p>
-                <div className="bg-yellow-50 border border-yellow-200 p-2 rounded text-xs text-yellow-800 font-bold">
-                  ⚠️ 必须先在当前浏览器登录 <a href="https://www.duolingo.com" target="_blank" rel="noopener noreferrer" className="underline">duolingo.com</a>
+                <div className="flex items-center gap-1 rounded border border-yellow-200 bg-yellow-50 p-2 text-xs font-bold text-yellow-800">
+                  <AppIcon name="warning" mode={iconMode} size="xs" className="text-yellow-700" />
+                  <span>必须先在当前浏览器登录 <a href="https://www.duolingo.com" target="_blank" rel="noopener noreferrer" className="underline">duolingo.com</a></span>
                 </div>
                 <ol className="list-decimal list-inside text-xs text-gray-500 space-y-1">
                   <li>在下方输入用户名，点击"打开数据页"</li>

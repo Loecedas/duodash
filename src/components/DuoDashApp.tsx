@@ -3,6 +3,7 @@ import type { UserData } from '../types';
 import { LoginScreen } from './LoginScreen';
 import { Navbar, PageHeader, StatCard, CourseList, TodayOverview } from './dashboard';
 import { ShareModal } from './share';
+import { AppIcon, type IconMode } from './icons/AppIcon';
 
 const LazyXpHistoryChart = lazy(() => import('./charts/XpHistoryChart'));
 const LazyTimeHistoryChart = lazy(() => import('./charts/TimeHistoryChart'));
@@ -97,6 +98,7 @@ interface DashboardContentProps {
   shouldRenderHeatmap: boolean;
   hasTimeHistory: boolean;
   hasYearlyHistory: boolean;
+  iconMode: IconMode;
   heatmapSentinelRef?: React.RefObject<HTMLDivElement | null>;
   isMirror?: boolean;
 }
@@ -108,25 +110,27 @@ const DashboardContent = ({
   shouldRenderHeatmap,
   hasTimeHistory,
   hasYearlyHistory,
+  iconMode,
   heatmapSentinelRef,
   isMirror = false
 }: DashboardContentProps) => {
   return (
     <div className={isMirror ? "p-8" : ""}>
-      <PageHeader userData={userData} viewData={viewData} />
+      <PageHeader userData={userData} viewData={viewData} iconMode={iconMode} />
 
       <div className="space-y-6">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-4">
-          <StatCard icon="⚡" value={userData ? viewData.totalXp.toLocaleString() : '—'} label="总经验" colorClass="text-yellow-500" seq={1} />
-          <StatCard icon="📅" value={userData ? viewData.accountAgeDays : '—'} label="注册天数" colorClass="text-blue-500" seq={2} />
-          <StatCard icon="📚" value={userData ? viewData.courses.length : '—'} label="学习课程" colorClass="text-teal-500" seq={3} />
-          <StatCard icon="⏱️" value={userData ? viewData.estimatedLearningTime : '—'} label="预估投入" colorClass="text-purple-500" seq={4} isLargeText={false} />
+          <StatCard iconName="bolt" iconMode={iconMode} value={userData ? viewData.totalXp.toLocaleString() : '—'} label="总经验" colorClass="text-yellow-500" seq={1} />
+          <StatCard iconName="calendar" iconMode={iconMode} value={userData ? viewData.accountAgeDays : '—'} label="注册天数" colorClass="text-blue-500" seq={2} />
+          <StatCard iconName="books" iconMode={iconMode} value={userData ? viewData.courses.length : '—'} label="学习课程" colorClass="text-teal-500" seq={3} />
+          <StatCard iconName="stopwatch" iconMode={iconMode} value={userData ? viewData.estimatedLearningTime : '—'} label="预估投入" colorClass="text-purple-500" seq={4} isLargeText={false} />
         </div>
 
         <div className={`grid gap-4 ${hasTimeHistory ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}>
           <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border-2 border-b-4 border-gray-200 dark:border-slate-700 animate-seq seq-5">
             <h2 className="text-gray-700 dark:text-slate-100 font-bold text-lg mb-3 flex items-center gap-2">
-              <span>⚡</span> 最近 7 天经验
+              <AppIcon name="bolt" mode={iconMode} className="text-yellow-500" />
+              <span>最近 7 天经验</span>
             </h2>
             {userData && (shouldRenderAboveFoldCharts || isMirror) ? (
               <Suspense fallback={<ChartSkeleton />}>
@@ -139,7 +143,8 @@ const DashboardContent = ({
           {hasTimeHistory && (
             <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border-2 border-b-4 border-gray-200 dark:border-slate-700 animate-seq seq-6">
               <h2 className="text-gray-700 dark:text-slate-100 font-bold text-lg mb-3 flex items-center gap-2">
-                <span>⏱️</span> 最近 7 天学习时间
+                <AppIcon name="stopwatch" mode={iconMode} className="text-purple-500" />
+                <span>最近 7 天学习时间</span>
               </h2>
               {userData && (shouldRenderAboveFoldCharts || isMirror) ? (
                 <Suspense fallback={<ChartSkeleton />}>
@@ -158,13 +163,13 @@ const DashboardContent = ({
           <div className="lg:col-span-2 animate-seq seq-8">
             {userData ? (
               <Suspense fallback={<div className="bg-white dark:bg-slate-900 rounded-2xl p-6 h-32 animate-pulse" />}>
-                <LazyAiCoach userData={userData} />
+                <LazyAiCoach userData={userData} iconMode={iconMode} />
               </Suspense>
             ) : (
               <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 h-32 animate-pulse" />
             )}
           </div>
-          <TodayOverview userData={userData} seq={9} />
+          <TodayOverview userData={userData} seq={9} iconMode={iconMode} />
         </div>
 
         {hasYearlyHistory && (
@@ -172,7 +177,10 @@ const DashboardContent = ({
             ref={heatmapSentinelRef}
             className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border-2 border-b-4 border-gray-200 dark:border-slate-700 animate-seq seq-10"
           >
-            <h2 className="text-gray-700 dark:text-slate-100 font-bold text-xl mb-4">📅 年度学习热力图</h2>
+            <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-gray-700 dark:text-slate-100">
+              <AppIcon name="calendar" mode={iconMode} className="text-blue-500" />
+              <span>年度学习热力图</span>
+            </h2>
             {(shouldRenderHeatmap || isMirror) ? (
               <Suspense fallback={<div className="h-48 w-full bg-gray-100 dark:bg-slate-800 rounded-xl animate-pulse" />}>
                 <LazyHeatmapChart data={userData?.yearlyXpHistory || []} forceViewMode={isMirror ? 'year' : undefined} />
@@ -208,6 +216,7 @@ export function DuoDashApp(): React.ReactElement {
   const [shouldRenderAboveFoldCharts, setShouldRenderAboveFoldCharts] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [themeMode, setThemeMode] = useState<ThemeMode>('system');
+  const [iconMode, setIconMode] = useState<IconMode>('emoji');
   const heatmapSentinelRef = useRef<HTMLDivElement | null>(null);
   const dashboardRef = useRef<HTMLDivElement | null>(null);
   const captureRef = useRef<HTMLDivElement | null>(null);
@@ -218,6 +227,10 @@ export function DuoDashApp(): React.ReactElement {
       const stored = localStorage.getItem('duodash:theme');
       if (stored === 'light' || stored === 'dark' || stored === 'system') {
         setThemeMode(stored);
+      }
+      const storedIconMode = localStorage.getItem('duodash:icon-mode');
+      if (storedIconMode === 'emoji' || storedIconMode === 'svg') {
+        setIconMode(storedIconMode);
       }
     } catch {
       // ignore storage errors
@@ -254,6 +267,14 @@ export function DuoDashApp(): React.ReactElement {
     }
     return undefined;
   }, [themeMode]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('duodash:icon-mode', iconMode);
+    } catch {
+      // ignore storage errors
+    }
+  }, [iconMode]);
 
   useEffect(() => {
     async function loadData(): Promise<void> {
@@ -448,7 +469,9 @@ export function DuoDashApp(): React.ReactElement {
     return (
       <div className="min-h-screen bg-[#235390] dark:bg-slate-950 flex items-center justify-center p-4">
         <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl p-12 text-center max-w-md border border-transparent dark:border-slate-700">
-          <div className="text-6xl mb-6">😢</div>
+          <div className="mb-6 flex justify-center">
+            <AppIcon name="sad" mode={iconMode} size="xl" className="text-red-400" />
+          </div>
           <h2 className="text-2xl font-bold text-gray-700 dark:text-slate-100 mb-4">连接失败</h2>
           <p className="text-red-500 mb-6">{error}</p>
           <p className="text-gray-700 dark:text-slate-300 text-sm mb-6">请检查环境变量中的 DUOLINGO_USERNAME 和 DUOLINGO_JWT 配置是否正确</p>
@@ -471,6 +494,7 @@ export function DuoDashApp(): React.ReactElement {
         onDemo={handleDemo}
         loading={loading}
         error={error}
+        iconMode={iconMode}
       />
     );
   }
@@ -490,6 +514,8 @@ export function DuoDashApp(): React.ReactElement {
         onShare={() => setShowShareModal(true)}
         themeMode={themeMode}
         onThemeChange={setThemeMode}
+        iconMode={iconMode}
+        onIconModeToggle={() => setIconMode((current) => current === 'emoji' ? 'svg' : 'emoji')}
       />
 
       <main ref={dashboardRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -500,6 +526,7 @@ export function DuoDashApp(): React.ReactElement {
           shouldRenderHeatmap={shouldRenderHeatmap}
           hasTimeHistory={!!hasTimeHistory}
           hasYearlyHistory={!!hasYearlyHistory}
+          iconMode={iconMode}
           heatmapSentinelRef={heatmapSentinelRef}
         />
       </main>
@@ -512,6 +539,7 @@ export function DuoDashApp(): React.ReactElement {
           cardRef={cardRef}
           dashboardRef={dashboardRef}
           onPrepareFull={() => {}}
+          iconMode={iconMode}
         />
       )}
     </div>

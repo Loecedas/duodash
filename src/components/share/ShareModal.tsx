@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import type { UserData } from '../../types';
 import { MilestoneCard, WeeklySummaryCard } from './cards';
 import { useScreenshot } from './useScreenshot';
+import { AppIcon, type IconMode } from '../icons/AppIcon';
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -11,13 +12,14 @@ interface ShareModalProps {
   cardRef: React.RefObject<HTMLDivElement | null>;
   dashboardRef: React.RefObject<HTMLElement | null>;
   onPrepareFull?: () => void;
+  iconMode: IconMode;
 }
 
 const CARD_OPTIONS = [
-  { type: 'milestone-streak', label: '连胜成就', icon: '🔥' },
-  { type: 'milestone-xp', label: '经验突破', icon: '⭐' },
-  { type: 'weekly', label: '本周报告', icon: '📊' },
-  { type: 'full', label: '全屏数据', icon: '🖥️' },
+  { type: 'milestone-streak', label: '连胜成就', iconName: 'flame' },
+  { type: 'milestone-xp', label: '经验突破', iconName: 'star' },
+  { type: 'weekly', label: '本周报告', iconName: 'chart' },
+  { type: 'full', label: '全屏数据', iconName: 'monitor' },
 ] as const;
 
 type CardType = (typeof CARD_OPTIONS)[number]['type'];
@@ -40,6 +42,7 @@ export function ShareModal({
   cardRef,
   dashboardRef,
   onPrepareFull,
+  iconMode,
 }: ShareModalProps) {
   const [selectedCard, setSelectedCard] = useState<CardType>('milestone-streak');
   const { isExporting, capture } = useScreenshot();
@@ -122,7 +125,7 @@ export function ShareModal({
             <div className="relative">
               <div className="h-16 w-16 animate-spin rounded-full border-4 border-[#58cc02]/20 border-t-[#58cc02]" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-xl">⏳</span>
+                <AppIcon name="hourglass" mode={iconMode} size="md" className="text-[#58cc02]" />
               </div>
             </div>
             <p className="mt-4 animate-pulse font-bold text-[#58cc02]">正在生成分享图片...</p>
@@ -133,7 +136,7 @@ export function ShareModal({
         <div className="p-5 sm:p-6">
           <div className="mb-5 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-xl font-bold text-gray-700">
-              <span>📤</span>
+              <AppIcon name="share" mode={iconMode} size="md" className="text-gray-700" />
               分享卡片
             </h2>
             <button
@@ -157,7 +160,11 @@ export function ShareModal({
                   : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                {option.icon}
+                <AppIcon
+                  name={option.iconName}
+                  mode={iconMode}
+                  className={selectedCard === option.type ? 'text-white' : 'text-gray-700'}
+                />
                 <span className="whitespace-nowrap">{option.label}</span>
               </button>
             ))}
