@@ -16,6 +16,7 @@ export function AiCoach({ userData, iconMode }: AiCoachProps): React.ReactElemen
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   const isMountedRef = useRef(true);
+  const hasAutoFetchedRef = useRef(false);
   const hasAnalysis = Boolean(analysis);
 
   useEffect(() => {
@@ -45,7 +46,8 @@ export function AiCoach({ userData, iconMode }: AiCoachProps): React.ReactElemen
   }, [hasAnalysis, userData]);
 
   useEffect(() => {
-    if (!userData || !shouldAutoFetch) return;
+    if (!userData || !shouldAutoFetch || hasAutoFetchedRef.current) return;
+    hasAutoFetchedRef.current = true;
 
     let cancelled = false;
 
@@ -134,11 +136,6 @@ export function AiCoach({ userData, iconMode }: AiCoachProps): React.ReactElemen
               </div>
             ) : loading ? (
               <div className="min-h-[116px]">
-                <div className="space-y-3 animate-pulse pt-2">
-                  <div className="h-4 w-3/4 rounded-full bg-gray-200"></div>
-                  <div className="h-4 w-full rounded-full bg-gray-200"></div>
-                  <div className="h-4 w-5/6 rounded-full bg-gray-200"></div>
-                </div>
               </div>
             ) : (
               <div className="min-h-[116px] text-sm leading-8 text-gray-500">
@@ -152,7 +149,7 @@ export function AiCoach({ userData, iconMode }: AiCoachProps): React.ReactElemen
           </div>
         </div>
 
-        <div className="mt-auto pt-4">
+        <div className="mt-auto pt-4 min-h-[60px]">
           <button
             onClick={() => void refreshAnalysis(true)}
             disabled={loading}
