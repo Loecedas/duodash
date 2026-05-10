@@ -388,7 +388,7 @@ export function HeatmapChart({ data, forceViewMode }: HeatmapChartProps): React.
                 return (
                   <div
                     key={`${weekIdx}-${dayIdx}`}
-                    className={`heatmap-cell w-full rounded-sm transition-all ${isValidDay ? 'cursor-pointer hover:ring-2 hover:ring-[#58cc02]' : ''} ${tooltip?.date === day.dateStr ? 'ring-2 ring-[#1cb0f6] ring-offset-1' : ''}`}
+                    className={`heatmap-cell w-full rounded-sm transition-all ${isValidDay ? 'cursor-pointer hover:ring-2 hover:ring-[#58cc02]' : ''} ${tooltip?.date === day.dateStr ? 'ring-2 ring-[#1cb0f6] ring-offset-1 z-10' : 'z-0'}`}
                     data-heatmap-date={day.dateStr || undefined}
                     style={{
                       backgroundColor: getColor(day.xp, maxXp),
@@ -409,11 +409,12 @@ export function HeatmapChart({ data, forceViewMode }: HeatmapChartProps): React.
               {/* Tooltip 卡片 */}
               <div
                 ref={tooltipRef}
-                className="fixed z-[9999] bg-white text-gray-700 rounded-xl shadow-xl border border-gray-200 p-3 w-[180px]"
+                className="fixed z-[9999] bg-white text-gray-700 rounded-xl shadow-xl border border-gray-200 p-3 w-[180px] transition-all duration-300 ease-out"
                 style={{
                   left: `${tooltip.x}px`,
-                  top: tooltip.showBelow ? `${tooltip.y}px` : `${tooltip.y}px`,
-                  transform: getTooltipTransform()
+                  top: `${tooltip.y}px`,
+                  transform: getTooltipTransform(),
+                  pointerEvents: 'auto'
                 }}
               >
                 {/* 关闭按钮 */}

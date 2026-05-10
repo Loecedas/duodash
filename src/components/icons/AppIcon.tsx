@@ -24,7 +24,8 @@ export type AppIconName =
   | 'star'
   | 'chart'
   | 'monitor'
-  | 'warning';
+  | 'warning'
+  | 'message';
 
 type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
@@ -58,6 +59,7 @@ const EMOJI_ICON_MAP: Record<AppIconName, string> = {
   chart: '📊',
   monitor: '🖥️',
   warning: '⚠️',
+  message: '💬',
 };
 
 const SIZE_CLASS_MAP: Record<IconSize, { box: string; emoji: string; svg: string }> = {
@@ -156,43 +158,32 @@ function renderSvg(name: AppIconName): React.ReactElement {
     case 'crown':
       return (
         <>
-          <path d="m4.25 18 1.5-9 4.25 3.5L12 6.5l2 6 4.25-3.5 1.5 9H4.25Z" fill="currentColor" stroke="none" />
-          <path d="M5.25 18.25h13.5" />
-          <circle cx="8.25" cy="11.25" r="0.7" fill="#ffffff" stroke="none" />
-          <circle cx="12" cy="9.25" r="0.7" fill="#ffffff" stroke="none" />
-          <circle cx="15.75" cy="11.25" r="0.7" fill="#ffffff" stroke="none" />
+          <path d="M5 21h14" />
+          <path d="M5 21l1.5-12 4.5 5 1-5 1 5 4.5-5 1.5 12" />
+          <circle cx="6.5" cy="8" r="0.7" fill="currentColor" stroke="none" />
+          <circle cx="12" cy="3" r="0.7" fill="currentColor" stroke="none" />
+          <circle cx="17.5" cy="8" r="0.7" fill="currentColor" stroke="none" />
         </>
       );
     case 'flame':
       return (
-        <>
-          <path
-            d="M12.25 3.2c.22 2.1-.5 3.72-1.73 5.08-1.52 1.68-3.07 3.22-3.07 5.72 0 3.43 2.21 6.04 5.02 6.04 3.02 0 5.08-2.3 5.08-5.4 0-1.92-.76-3.44-2.13-5.05-.95-1.11-1.7-2.53-1.63-5.36"
-          />
-          <path
-            d="M12.15 10.9c-.18 1.12-.74 1.9-1.3 2.56-.55.66-1.04 1.28-1.04 2.18 0 1.35.98 2.38 2.29 2.38 1.38 0 2.38-1.05 2.38-2.4 0-.9-.42-1.58-.95-2.23-.53-.63-.97-1.33-1.12-2.49"
-          />
-        </>
+        <path d="M12 2c2.4 3.5 6 5.8 6 10.7a6 6 0 1 1-12 0c0-2.5 1.3-4.5 3-6.5.9 2.1 2.1 3.3 2.9 4 .7-2 .7-6 0-8.2z" />
       );
     case 'gem':
       return (
         <>
-          <path d="M6.25 8.25 9.25 4.5h5.5l3 3.75L12 20 6.25 8.25Z" />
-          <path d="M6.25 8.25h11.5" />
-          <path d="m9.25 4.5 2.75 3.75 2.75-3.75" />
-          <path d="m12 8.25-1.8 11.75" />
-          <path d="M12 8.25 13.8 20" />
+          <path d="M12 21L2 9l4-6h12l4 6-10 12z" />
+          <path d="M2 9h20" />
+          <path d="M12 21l-4-12 4-6 4 6-4 12z" />
         </>
       );
     case 'trophy':
       return (
         <>
-          <path d="M8 4.5h8v3.75a4 4 0 0 1-8 0V4.5Z" />
-          <path d="M8 6H5.5A1.75 1.75 0 0 0 7.25 9.5H8" />
-          <path d="M16 6h2.5a1.75 1.75 0 0 1-1.75 3.5H16" />
-          <path d="M12 12.25V16.5" />
-          <path d="M9.25 19.5h5.5" />
-          <path d="M9.5 16.5h5" />
+          <path d="M6 3h12v7c0 4.5-3 7.5-6 7.5S6 14.5 6 10V3z" />
+          <path d="M12 17.5v3.5m-4 0h8" />
+          <path d="M6 6H4a2 2 0 0 0 0 3h2" />
+          <path d="M18 6h2a2 2 0 0 1 0 3h-2" />
         </>
       );
     case 'owl':
@@ -273,6 +264,15 @@ function renderSvg(name: AppIconName): React.ReactElement {
           <circle cx="12" cy="15.9" r="0.85" fill="currentColor" stroke="none" />
         </>
       );
+    case 'message':
+      return (
+        <>
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          <circle cx="8.5" cy="10" r="1.1" fill="currentColor" stroke="none" />
+          <circle cx="12" cy="10" r="1.1" fill="currentColor" stroke="none" />
+          <circle cx="15.5" cy="10" r="1.1" fill="currentColor" stroke="none" />
+        </>
+      );
   }
 }
 
@@ -281,7 +281,7 @@ export function AppIcon({ name, mode, size = 'sm', className }: AppIconProps): R
 
   if (mode === 'emoji') {
     return (
-      <span className={joinClasses('inline-flex shrink-0 items-center justify-center align-middle', sizeClasses.box, className)} aria-hidden="true">
+      <span className={joinClasses('inline-flex shrink-0 items-center justify-center', sizeClasses.box, className)} aria-hidden="true">
         <span className={joinClasses('inline-flex items-center justify-center leading-none', sizeClasses.emoji)}>
           {EMOJI_ICON_MAP[name]}
         </span>
@@ -290,7 +290,7 @@ export function AppIcon({ name, mode, size = 'sm', className }: AppIconProps): R
   }
 
   return (
-    <span className={joinClasses('inline-flex shrink-0 items-center justify-center align-middle', sizeClasses.box, className)} aria-hidden="true">
+    <span className={joinClasses('inline-flex shrink-0 items-center justify-center', sizeClasses.box, className)} aria-hidden="true">
       <svg
         viewBox="0 0 24 24"
         fill="none"
@@ -299,6 +299,7 @@ export function AppIcon({ name, mode, size = 'sm', className }: AppIconProps): R
         strokeLinecap="round"
         strokeLinejoin="round"
         className={joinClasses('overflow-visible', sizeClasses.svg)}
+        style={{ transform: 'translateY(0.02em)' }}
         aria-hidden="true"
       >
         {renderSvg(name)}

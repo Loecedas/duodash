@@ -105,7 +105,7 @@ export function AiCoach({ userData, iconMode }: AiCoachProps): React.ReactElemen
     >
       <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
         <h2 className="flex items-center gap-2 text-lg font-bold text-gray-700">
-          <AppIcon name="owl" mode={iconMode} size="md" className="text-[#58cc02]" />
+          <AppIcon name="message" mode={iconMode} size="md" className="text-[#58cc02]" />
           <span>Duo 老师的点评</span>
         </h2>
         {loading && <span className="text-xs font-medium text-gray-500">刷新中...</span>}
