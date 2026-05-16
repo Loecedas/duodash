@@ -5,6 +5,8 @@ export interface Course {
   learningLanguage: string;
   crowns: number;
   id: string;
+  subject?: string;     // chess, math, music
+  timeSpent?: number;   // 学习时间（秒）
 }
 
 export interface DailyStats {
@@ -26,6 +28,8 @@ export interface UserData {
   weeklyXpHistory?: { date: string; xp: number; isFuture: boolean }[];
   weeklyTimeHistory?: { date: string; time: number; isFuture: boolean }[];
   learningLanguage: string;
+  learningLanguageCode?: string;
+  learningSubject?: string;
   creationDate: string;
   accountAgeDays: number;
   isPlus: boolean;
@@ -145,9 +149,9 @@ export interface DuolingoRawUser {
   lingots?: number;
   rupees?: number;
   tier?: number;
-  courses?: DuolingoRawCourse[];
+  courses?: (DuolingoRawCourse & { subject?: string; timeSpent?: number; duration?: number })[];
   language_data?: { [key: string]: DuolingoLanguageDataDetail };
-  currentCourse?: DuolingoRawCourse;
+  currentCourse?: DuolingoRawCourse & { subject?: string; timeSpent?: number; duration?: number };
   calendar?: DuolingoCalendarEvent[];
   creationDate?: number;
   created?: string;

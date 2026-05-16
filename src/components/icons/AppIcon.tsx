@@ -25,15 +25,20 @@ export type AppIconName =
   | 'chart'
   | 'monitor'
   | 'warning'
-  | 'message';
+  | 'message'
+  | 'chess'
+  | 'math'
+  | 'music';
 
 type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 interface AppIconProps {
-  name: AppIconName;
+  name?: AppIconName;
+  flag?: string; // 语言代码，如 'en', 'zh'
   mode: IconMode;
   size?: IconSize;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 const EMOJI_ICON_MAP: Record<AppIconName, string> = {
@@ -60,6 +65,36 @@ const EMOJI_ICON_MAP: Record<AppIconName, string> = {
   monitor: '🖥️',
   warning: '⚠️',
   message: '💬',
+  chess: '♟️',
+  math: '➕',
+  music: '🎵',
+};
+
+const DUO_FLAG_MAP: Record<string, string> = {
+  en: 'gb',
+  zh: 'cn',
+  'zh-hk': 'cn',
+  zc: 'cn',
+  zs: 'cn',
+  es: 'es',
+  fr: 'fr',
+  de: 'de',
+  ja: 'jp',
+  ko: 'kr',
+  it: 'it',
+  pt: 'br',
+  ru: 'ru',
+  vi: 'vn',
+  tr: 'tr',
+  ar: 'sa',
+  hi: 'in',
+  el: 'gr',
+  he: 'il',
+  sv: 'se',
+  nl: 'nl',
+  pl: 'pl',
+  hu: 'hu',
+  uk: 'ua',
 };
 
 const SIZE_CLASS_MAP: Record<IconSize, { box: string; emoji: string; svg: string }> = {
@@ -273,15 +308,54 @@ function renderSvg(name: AppIconName): React.ReactElement {
           <circle cx="15.5" cy="10" r="1.1" fill="currentColor" stroke="none" />
         </>
       );
+    case 'chess':
+      return (
+        <path d="M12 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2ZM9 19c0 1.1.9 2 2 2h2c1.1 0 2-.9 2-2H9Zm6.5-9.33L12 8l-3.5 1.67c-.33.17-.5.5-.5.83v5c0 .33.17.67.5.83L12 18l3.5-1.67c.33-.17.5-.5.5-.83v-5c0-.33-.17-.67-.5-.83Z" />
+      );
+    case 'math':
+      return (
+        <>
+          <path d="M12 5v14m-7-7h14" />
+          <path d="M5 19l14-14" strokeOpacity="0.3" />
+        </>
+      );
+    case 'music':
+      return (
+        <>
+          <path d="M9 18V5l10 2v13" />
+          <circle cx="6" cy="18" r="3" />
+          <circle cx="16" cy="20" r="3" />
+        </>
+      );
   }
 }
 
-export function AppIcon({ name, mode, size = 'sm', className }: AppIconProps): React.ReactElement {
+export function AppIcon({ name, flag, mode, size = 'sm', className, style }: AppIconProps): React.ReactElement {
   const sizeClasses = SIZE_CLASS_MAP[size];
 
-  if (mode === 'emoji') {
+  // 如果提供了 flag，渲染国旗图片
+  if (flag) {
+    const code = flag.toLowerCase();
+    const countryCode = DUO_FLAG_MAP[code] || 'un';
+    const flagUrl = `https://flagcdn.com/w40/${countryCode}.png`;
+    
     return (
-      <span className={joinClasses('inline-flex shrink-0 items-center justify-center', sizeClasses.box, className)} aria-hidden="true">
+      <span className={joinClasses('inline-flex shrink-0 items-center justify-center overflow-hidden rounded-sm', sizeClasses.box, className)} style={style} aria-hidden="true">
+        <img 
+          src={flagUrl} 
+          alt={flag}
+          className="w-full h-auto object-cover"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = 'https://flagcdn.com/w40/un.png';
+          }}
+        />
+      </span>
+    );
+  }
+
+  if (mode === 'emoji' && name) {
+    return (
+      <span className={joinClasses('inline-flex shrink-0 items-center justify-center', sizeClasses.box, className)} style={style} aria-hidden="true">
         <span className={joinClasses('inline-flex items-center justify-center leading-none', sizeClasses.emoji)}>
           {EMOJI_ICON_MAP[name]}
         </span>
@@ -290,7 +364,7 @@ export function AppIcon({ name, mode, size = 'sm', className }: AppIconProps): R
   }
 
   return (
-    <span className={joinClasses('inline-flex shrink-0 items-center justify-center', sizeClasses.box, className)} aria-hidden="true">
+    <span className={joinClasses('inline-flex shrink-0 items-center justify-center', sizeClasses.box, className)} style={style} aria-hidden="true">
       <svg
         viewBox="0 0 24 24"
         fill="none"
@@ -302,7 +376,7 @@ export function AppIcon({ name, mode, size = 'sm', className }: AppIconProps): R
         style={{ transform: 'translateY(0.02em)' }}
         aria-hidden="true"
       >
-        {renderSvg(name)}
+        {name && renderSvg(name)}
       </svg>
     </span>
   );

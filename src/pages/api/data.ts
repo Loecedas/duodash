@@ -117,6 +117,15 @@ export const GET: APIRoute = async ({ request }) => {
           authHeaders, 8000
         ),
       ]);
+      
+      // 4. 获取新科目数据 (Ameba Architecture)
+      const amebaUrl = `${DUOLINGO_BASE_URL}/2023-05-23/users/${userId}?fields=courses,currentCourse,fromLanguage,learningLanguage,trackingProperties`;
+      const amebaResult = await fetchWithTimeout(amebaUrl, authHeaders, 8000);
+      if (amebaResult.status === 200 && amebaResult.data) {
+        const amebaData = amebaResult.data as any;
+        if (amebaData.courses) userData._amebaCourses = amebaData.courses;
+        if (amebaData.currentCourse) userData._amebaCurrentCourse = amebaData.currentCourse;
+      }
 
       if (xpResult.status === 200 && xpResult.data) {
         userData._xpSummaries = (xpResult.data as any).summaries;

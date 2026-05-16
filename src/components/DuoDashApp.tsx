@@ -45,17 +45,18 @@ const DEMO_DATA: UserData = {
   gems: 15400,
   league: "钻石 (Diamond)",
   leagueTier: 9,
-  learningLanguage: "Spanish",
+  learningLanguage: "英语",
+  learningLanguageCode: "en",
   creationDate: "2015 年 5 月 12 日",
   accountAgeDays: 3200,
   isPlus: true,
   dailyGoal: 50,
   estimatedLearningTime: "562 小时 57 分钟",
   courses: [
-    { id: 'es', title: "Spanish", xp: 125000, fromLanguage: "en", learningLanguage: "es", crowns: 150 },
-    { id: 'fr', title: "French", xp: 55000, fromLanguage: "en", learningLanguage: "fr", crowns: 45 },
-    { id: 'de', title: "German", xp: 12000, fromLanguage: "en", learningLanguage: "de", crowns: 20 },
-    { id: 'jp', title: "Japanese", xp: 2500, fromLanguage: "en", learningLanguage: "ja", crowns: 5 },
+    { id: 'en', title: "英语", xp: 243820, fromLanguage: "zh", learningLanguage: "en", crowns: 150 },
+    { id: 'chess', title: "国际象棋", xp: 36697, fromLanguage: "en", learningLanguage: "en", crowns: 10, subject: "chess" },
+    { id: 'zh', title: "中文", xp: 15634, fromLanguage: "en", learningLanguage: "zh", crowns: 20 },
+    { id: 'zc', title: "粤语", xp: 1445, fromLanguage: "zh", learningLanguage: "zc", crowns: 5 },
   ],
   dailyXpHistory: [
     { date: '11/29', xp: 120 }, { date: '11/30', xp: 250 }, { date: '12/1', xp: 45 },
@@ -157,7 +158,7 @@ const DashboardContent = ({
           )}
         </div>
 
-        <CourseList courses={viewData.courses} seq={7} />
+        <CourseList courses={viewData.courses} seq={7} iconMode={iconMode} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 animate-seq seq-8">
@@ -455,8 +456,8 @@ export function DuoDashApp(): React.ReactElement {
 
   if (loading && !userData) {
     return (
-      <div className="min-h-screen bg-[#235390] dark:bg-slate-950 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl p-12 text-center border border-transparent dark:border-slate-700">
+      <div className="min-h-screen bg-[#f7f7f7] dark:bg-slate-950 flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-12 text-center border-2 border-gray-100 dark:border-slate-700 max-w-sm w-full transition-all">
           <img src="/green-owl.svg" alt="Duo" width="96" height="96" className="w-24 h-24 mx-auto mb-6 animate-bounce" />
           <h2 className="text-2xl font-bold text-gray-700 dark:text-slate-100 mb-4">正在加载数据...</h2>
           <p className="text-gray-500 dark:text-slate-400">正在连接 Duolingo API</p>
@@ -467,8 +468,8 @@ export function DuoDashApp(): React.ReactElement {
 
   if (!userData && isConfigured && error) {
     return (
-      <div className="min-h-screen bg-[#235390] dark:bg-slate-950 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl p-12 text-center max-w-md border border-transparent dark:border-slate-700">
+      <div className="min-h-screen bg-[#f7f7f7] dark:bg-slate-950 flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-12 text-center max-w-md border-2 border-gray-100 dark:border-slate-700">
           <div className="mb-6 flex justify-center">
             <AppIcon name="sad" mode={iconMode} size="xl" className="text-red-400" />
           </div>

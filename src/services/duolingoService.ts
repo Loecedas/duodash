@@ -8,6 +8,39 @@ const LEAGUE_TIERS = [
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 const DEFAULT_TIMEZONE = 'Asia/Shanghai';
 
+const SUBJECT_MAP: Record<string, string> = {
+  chess: '国际象棋',
+  math: '数学',
+  music: '音乐',
+};
+
+const LANGUAGE_NAME_MAP: Record<string, string> = {
+  en: '英语',
+  zh: '中文',
+  zs: '中文',
+  zc: '粤语',
+  'zh-hk': '粤语',
+  es: '西班牙语',
+  fr: '法语',
+  de: '德语',
+  ja: '日语',
+  ko: '韩语',
+  it: '意大利语',
+  pt: '葡萄牙语',
+  ru: '俄语',
+  vi: '越南语',
+  tr: '土耳其语',
+  ar: '阿拉伯语',
+  hi: '印地语',
+  el: '希腊语',
+  he: '希伯来语',
+  sv: '瑞典语',
+  nl: '荷兰语',
+  pl: '波兰语',
+  hu: '匈牙利语',
+  uk: '乌克兰语',
+};
+
 // 日期格式化器单例，避免重复创建
 const DATE_FORMATTER = new Intl.DateTimeFormat('en-CA', {
   year: 'numeric',
@@ -260,7 +293,37 @@ export function transformDuolingoData(rawData: DuolingoRawUser): UserData {
 
   let courses: Course[] = [];
 
-  if (rawData.courses?.length) {
+  // 优先处理 Ameba 架构的新课程数据
+  const amebaCourses = rawAny._amebaCourses || [];
+  if (amebaCourses.length > 0) {
+    courses = amebaCourses.map((c: any) => {
+      const subject = c.subject;
+      let title = c.title;
+      
+      if (subject) {
+        // 新科目：根据 subject 映射中文名
+        title = SUBJECT_MAP[subject] || title || subject;
+      } else {
+        // 语言：强制使用中文映射，如果没有则保留原标题或从 language_data 获取
+        const langCode = c.learningLanguage || '';
+        title = LANGUAGE_NAME_MAP[langCode.toLowerCase()] || rawData.language_data?.[langCode]?.language_string || title || langCode;
+      }
+
+      return {
+        id: c.id || c.learningLanguage || subject || Math.random().toString(36).substr(2, 9),
+        title: title || '未知课程',
+        xp: c.xp || 0,
+        fromLanguage: c.fromLanguage || 'en',
+        learningLanguage: c.learningLanguage || subject || '',
+        crowns: c.crowns || 0,
+        subject: subject,
+        timeSpent: c.timeSpent || c.duration || 0,
+      };
+    });
+  }
+
+  // 如果没有 Ameba 数据，尝试回退到旧版 courses 字段
+  if (courses.length === 0 && rawData.courses?.length) {
     courses = rawData.courses
       .filter((c: any) => (c.xp || 0) > 0 || c.current_learning)
       .map(c => ({
@@ -273,7 +336,8 @@ export function transformDuolingoData(rawData: DuolingoRawUser): UserData {
       }));
   }
 
-  if (rawAny.languages?.length) {
+  // 进一步回退到 languages 列表（V1 API）
+  if (courses.length === 0 && rawAny.languages?.length) {
     const v1Courses = rawAny.languages
       .filter((l: any) => l.points > 0 || l.current_learning)
       .map((l: any) => ({
@@ -289,13 +353,13 @@ export function transformDuolingoData(rawData: DuolingoRawUser): UserData {
       const exists = courses.some(c =>
         c.title === v1c.title ||
         c.learningLanguage === v1c.learningLanguage ||
-        // 只在两者 id 均非空时做包含检查，避免空字符串 includes('') 永远为 true
         (c.id && v1c.id && v1c.id.length > 0 && c.id.includes(v1c.id))
       );
       if (!exists) courses.push(v1c);
     }
   }
 
+  // 最后回退到 language_data 映射
   if (courses.length === 0 && rawData.language_data) {
     courses = Object.entries(rawData.language_data)
       .filter(([_, langDetail]: [string, any]) => {
@@ -320,13 +384,29 @@ export function transformDuolingoData(rawData: DuolingoRawUser): UserData {
   }
 
   let learningLanguage = "None";
-  if (rawData.language_data) {
-    const current = Object.values(rawData.language_data).find(l => l.current_learning);
-    learningLanguage = current?.language_string ?? courses[0]?.title ?? "None";
+  let learningLanguageCode: string | undefined = undefined;
+  let learningSubject: string | undefined = undefined;
+
+  if (rawAny._amebaCurrentCourse) {
+    const curr = rawAny._amebaCurrentCourse;
+    // 如果 subject 是 'language'，则它其实是语言课程，需要按语言逻辑处理
+    if (curr.subject && curr.subject !== 'language') {
+      learningSubject = curr.subject;
+      learningLanguage = SUBJECT_MAP[curr.subject] || curr.subject;
+    } else {
+      learningLanguageCode = curr.learningLanguage;
+      learningLanguage = (learningLanguageCode ? LANGUAGE_NAME_MAP[learningLanguageCode.toLowerCase()] : null) || curr.title || curr.learningLanguage;
+    }
+  } else if (rawData.language_data) {
+    const current = Object.values(rawData.language_data).find(l => (l as any).current_learning);
+    learningLanguageCode = (current as any)?.learning_language || courses[0]?.learningLanguage;
+    learningLanguage = (learningLanguageCode ? LANGUAGE_NAME_MAP[learningLanguageCode.toLowerCase()] : null) || (current as any)?.language_string || courses[0]?.title || "None";
   } else if (rawData.currentCourse) {
-    learningLanguage = rawData.currentCourse.title;
+    learningLanguageCode = rawData.currentCourse.learningLanguage;
+    learningLanguage = (learningLanguageCode ? LANGUAGE_NAME_MAP[learningLanguageCode.toLowerCase()] : null) || rawData.currentCourse.title;
   } else if (courses.length > 0) {
-    learningLanguage = courses[0].title;
+    learningLanguageCode = courses[0].learningLanguage;
+    learningLanguage = (learningLanguageCode ? LANGUAGE_NAME_MAP[learningLanguageCode.toLowerCase()] : null) || courses[0].title;
   }
 
   const xpByDate = new Map<string, number>();
@@ -414,10 +494,19 @@ export function transformDuolingoData(rawData: DuolingoRawUser): UserData {
   const hasItemPremium = rawAny.has_item_premium_subscription || rawAny.has_item_immersive_subscription;
   const isPlus = !!(rawData.hasPlus || rawData.hasSuper || rawData.plusStatus === 'active' || rawAny.has_plus || rawAny.is_plus || hasInventoryPremium || hasItemPremium);
 
-  // 计算总学习时间：仅使用 xp_summaries 中的真实 totalSessionTime
+  // 计算总学习时间
   let totalMinutes = 0;
   let hasRealTimeData = false;
-  if (rawAny._xpSummaries?.length) {
+  
+  // 1. 尝试从课程数据中累加 timeSpent (Ameba)
+  const amebaTimeSeconds = courses.reduce((acc, c) => acc + (c.timeSpent || 0), 0);
+  if (amebaTimeSeconds > 0) {
+    totalMinutes = Math.floor(amebaTimeSeconds / 60);
+    hasRealTimeData = true;
+  }
+  
+  // 2. 如果没有课程时间，使用 xp_summaries 中的真实 totalSessionTime
+  if (!hasRealTimeData && rawAny._xpSummaries?.length) {
     const totalSeconds = rawAny._xpSummaries.reduce((acc: number, s: any) =>
       acc + (s.totalSessionTime ?? s.total_session_time ?? 0), 0);
     totalMinutes = Math.floor(totalSeconds / 60);
@@ -486,7 +575,7 @@ export function transformDuolingoData(rawData: DuolingoRawUser): UserData {
     league: leagueName, leagueTier: tierIndex, courses, dailyXpHistory,
     dailyTimeHistory, yearlyXpHistory,
     weeklyXpHistory, weeklyTimeHistory,
-    learningLanguage, creationDate: creationDateStr, accountAgeDays,
+    learningLanguage, learningLanguageCode, learningSubject, creationDate: creationDateStr, accountAgeDays,
     isPlus, dailyGoal, estimatedLearningTime,
     xpToday,
     lessonsToday: lessonsToday || undefined,

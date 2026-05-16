@@ -1,6 +1,6 @@
 import React from 'react';
 import type { UserData } from '../../types';
-import { AppIcon, type IconMode } from '../icons/AppIcon';
+import { AppIcon, type AppIconName, type IconMode } from '../icons/AppIcon';
 
 interface PageHeaderProps {
   userData: UserData | null;
@@ -14,10 +14,21 @@ export function PageHeader({ userData, viewData, iconMode }: PageHeaderProps): R
       <h1 className="mb-2 text-4xl font-extrabold text-gray-800">学习数据概览</h1>
       <p className="mb-4 text-base text-gray-600">
         {userData ? (
-          <>
+          <span className="flex items-center gap-1.5 flex-wrap">
             已加入多邻国 <span className="font-semibold text-gray-800">{viewData.accountAgeDays}</span> 天 · 当前重点：
-            <span className="font-semibold text-[#58cc02]"> {viewData.learningLanguage}</span>
-          </>
+            <span className="inline-flex items-center gap-1 font-semibold text-[#58cc02]">
+              {(viewData.learningSubject || viewData.learningLanguage) && (
+                <AppIcon 
+                  name={viewData.learningSubject ? (viewData.learningSubject as AppIconName) : undefined} 
+                  flag={!viewData.learningSubject ? (viewData.learningLanguageCode || viewData.learningLanguage) : undefined}
+                  mode={iconMode} 
+                  size="xs" 
+                  className="text-[#58cc02]" 
+                />
+              )}
+              {viewData.learningLanguage}
+            </span>
+          </span>
         ) : (
           <>正在加载你的学习数据…</>
         )}
