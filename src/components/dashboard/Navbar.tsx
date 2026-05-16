@@ -143,7 +143,7 @@ export function Navbar({
             {onShare && (
               <button
                 onClick={onShare}
-                className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-gray-50 px-3 py-1.5 transition-colors hover:bg-gray-100"
+                className="flex h-[2.375rem] items-center gap-1.5 rounded-xl border border-gray-200 bg-gray-50 px-3 transition-colors hover:bg-gray-100"
                 title="分享卡片"
                 aria-label="分享卡片"
               >
@@ -153,7 +153,7 @@ export function Navbar({
             )}
             <button
               onClick={onIconModeToggle}
-              className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-gray-50 px-3 py-1.5 transition-colors hover:bg-gray-100"
+              className="flex h-[2.375rem] w-[5.8rem] items-center gap-1.5 rounded-xl border border-gray-200 bg-gray-50 px-3 transition-colors hover:bg-gray-100"
               title={iconToggleTitle}
               aria-label={iconToggleTitle}
             >
@@ -163,7 +163,7 @@ export function Navbar({
             <button
               onClick={onRefresh}
               disabled={loading}
-              className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-gray-50 px-3 py-1.5 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-[2.375rem] items-center gap-1.5 rounded-xl border border-gray-200 bg-gray-50 px-3 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
               title="刷新数据"
               aria-label={loading ? '正在刷新数据' : '刷新数据'}
             >

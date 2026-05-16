@@ -40,7 +40,7 @@ export function StatCard({
   return (
     <div className={`animate-seq seq-${seq} rounded-2xl border-2 border-b-4 border-gray-200 bg-white p-4 shadow-sm`}>
       <div
-        className="mb-1"
+        className="mb-1 h-8 flex items-center"
         style={iconColor ? { color: iconColor, filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))' } : undefined}
       >
         <AppIcon name={iconName} mode={iconMode} size="lg" />

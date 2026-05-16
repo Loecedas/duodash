@@ -17,15 +17,6 @@ export function PageHeader({ userData, viewData, iconMode }: PageHeaderProps): R
           <span className="flex items-center gap-1.5 flex-wrap">
             已加入多邻国 <span className="font-semibold text-gray-800">{viewData.accountAgeDays}</span> 天 · 当前重点：
             <span className="inline-flex items-center gap-1 font-semibold text-[#58cc02]">
-              {(viewData.learningSubject || viewData.learningLanguage) && (
-                <AppIcon 
-                  name={viewData.learningSubject ? (viewData.learningSubject as AppIconName) : undefined} 
-                  flag={!viewData.learningSubject ? (viewData.learningLanguageCode || viewData.learningLanguage) : undefined}
-                  mode={iconMode} 
-                  size="xs" 
-                  className="text-[#58cc02]" 
-                />
-              )}
               {viewData.learningLanguage}
             </span>
           </span>

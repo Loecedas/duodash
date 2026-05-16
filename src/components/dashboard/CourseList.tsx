@@ -46,7 +46,7 @@ export function CourseList({ courses, seq, iconMode }: CourseListProps): React.R
 
       {courses.length > 0 ? (
         <div className="p-4">
-          <div className="flex flex-wrap gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-2">
             {sortedCourses.map((course, idx) => {
               const percent = totalCourseXp > 0 ? ((course.xp / totalCourseXp) * 100).toFixed(1) : '0';
               const relativeWidth = maxCourseXp > 0 ? (course.xp / maxCourseXp) * 100 : 0;
@@ -59,7 +59,7 @@ export function CourseList({ courses, seq, iconMode }: CourseListProps): React.R
               return (
                 <div
                   key={course.id}
-                  className="flex-1 min-w-[200px] sm:min-w-[240px] bg-gray-50 rounded-xl p-4 border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all"
+                  className="flex-1 min-w-[200px] sm:min-w-[240px] lg:min-w-0 bg-gray-50 rounded-xl p-4 border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all"
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <div className="flex-shrink-0">

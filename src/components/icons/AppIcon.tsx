@@ -99,9 +99,9 @@ const DUO_FLAG_MAP: Record<string, string> = {
 
 const SIZE_CLASS_MAP: Record<IconSize, { box: string; emoji: string; svg: string }> = {
   xs: { box: 'h-4 w-4', emoji: 'text-sm', svg: 'h-[1.12rem] w-[1.12rem]' },
-  sm: { box: 'h-5 w-5', emoji: 'text-base', svg: 'h-[1.42rem] w-[1.42rem]' },
-  md: { box: 'h-6 w-6', emoji: 'text-xl', svg: 'h-[1.72rem] w-[1.72rem]' },
-  lg: { box: 'h-7 w-7', emoji: 'text-2xl', svg: 'h-[2rem] w-[2rem]' },
+  sm: { box: 'h-6 w-6', emoji: 'text-base', svg: 'h-[1.42rem] w-[1.42rem]' },
+  md: { box: 'h-7 w-7', emoji: 'text-xl', svg: 'h-[1.72rem] w-[1.72rem]' },
+  lg: { box: 'h-8 w-8', emoji: 'text-2xl', svg: 'h-[2rem] w-[2rem]' },
   xl: { box: 'h-16 w-16', emoji: 'text-6xl', svg: 'h-[4.6rem] w-[4.6rem]' },
 };
 
@@ -192,17 +192,15 @@ function renderSvg(name: AppIconName): React.ReactElement {
       );
     case 'crown':
       return (
-        <>
-          <path d="M5 21h14" />
-          <path d="M5 21l1.5-12 4.5 5 1-5 1 5 4.5-5 1.5 12" />
-          <circle cx="6.5" cy="8" r="0.7" fill="currentColor" stroke="none" />
-          <circle cx="12" cy="3" r="0.7" fill="currentColor" stroke="none" />
-          <circle cx="17.5" cy="8" r="0.7" fill="currentColor" stroke="none" />
-        </>
+        <g transform="translate(0, 1.5)">
+          <path d="M3 20L4 6l5 5 3-9 3 9 5-5 1 14H3z" fill="none" />
+        </g>
       );
     case 'flame':
       return (
-        <path d="M12 2c2.4 3.5 6 5.8 6 10.7a6 6 0 1 1-12 0c0-2.5 1.3-4.5 3-6.5.9 2.1 2.1 3.3 2.9 4 .7-2 .7-6 0-8.2z" />
+        <g transform="translate(0, 2.5)">
+          <path d="M12 2c2.4 3.5 6 5.8 6 10.7a6 6 0 1 1-12 0c0-2.5 1.3-4.5 3-6.5.9 2.1 2.1 3.3 2.9 4 .7-2 .7-6 0-8.2z" />
+        </g>
       );
     case 'gem':
       return (
@@ -333,6 +331,19 @@ function renderSvg(name: AppIconName): React.ReactElement {
 export function AppIcon({ name, flag, mode, size = 'sm', className, style }: AppIconProps): React.ReactElement {
   const sizeClasses = SIZE_CLASS_MAP[size];
 
+  // 特殊处理国际象棋图标：始终显示 .ico 图像
+  if (name === 'chess') {
+    return (
+      <span className={joinClasses('inline-flex shrink-0 items-center justify-center overflow-hidden', sizeClasses.box, className)} style={style} aria-hidden="true">
+        <img 
+          src="https://www.chess.com/favicon.ico" 
+          alt="Chess"
+          className="w-[85%] h-[85%] object-contain"
+        />
+      </span>
+    );
+  }
+
   // 如果提供了 flag，渲染国旗图片
   if (flag) {
     const code = flag.toLowerCase();
@@ -355,7 +366,7 @@ export function AppIcon({ name, flag, mode, size = 'sm', className, style }: App
 
   if (mode === 'emoji' && name) {
     return (
-      <span className={joinClasses('inline-flex shrink-0 items-center justify-center', sizeClasses.box, className)} style={style} aria-hidden="true">
+      <span className={joinClasses('inline-flex shrink-0 items-center justify-center leading-none overflow-hidden', sizeClasses.box, className)} style={style} aria-hidden="true">
         <span className={joinClasses('inline-flex items-center justify-center leading-none', sizeClasses.emoji)}>
           {EMOJI_ICON_MAP[name]}
         </span>
@@ -364,7 +375,7 @@ export function AppIcon({ name, flag, mode, size = 'sm', className, style }: App
   }
 
   return (
-    <span className={joinClasses('inline-flex shrink-0 items-center justify-center', sizeClasses.box, className)} style={style} aria-hidden="true">
+    <span className={joinClasses('inline-flex shrink-0 items-center justify-center leading-none overflow-hidden', sizeClasses.box, className)} style={style} aria-hidden="true">
       <svg
         viewBox="0 0 24 24"
         fill="none"
