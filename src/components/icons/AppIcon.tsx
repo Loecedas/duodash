@@ -336,7 +336,7 @@ export function AppIcon({ name, flag, mode, size = 'sm', className, style }: App
     return (
       <span className={joinClasses('inline-flex shrink-0 items-center justify-center overflow-hidden', sizeClasses.box, className)} style={style} aria-hidden="true">
         <img 
-          src="https://www.chess.com/favicon.ico" 
+          src="/chess.ico" 
           alt="Chess"
           className="w-[85%] h-[85%] object-contain"
         />
@@ -356,6 +356,7 @@ export function AppIcon({ name, flag, mode, size = 'sm', className, style }: App
           src={flagUrl} 
           alt={flag}
           className="w-full h-auto object-cover"
+          crossOrigin="anonymous"
           onError={(e) => {
             (e.target as HTMLImageElement).src = 'https://flagcdn.com/w40/un.png';
           }}

@@ -104,7 +104,7 @@ interface DashboardContentProps {
   isMirror?: boolean;
 }
 
-const DashboardContent = ({
+const DashboardContent = React.memo(({
   userData,
   viewData,
   shouldRenderAboveFoldCharts,
@@ -204,7 +204,7 @@ const DashboardContent = ({
       </div>
     </div>
   );
-};
+});
 
 export function DuoDashApp(): React.ReactElement {
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -216,27 +216,28 @@ export function DuoDashApp(): React.ReactElement {
   const [shouldRenderHeatmap, setShouldRenderHeatmap] = useState(false);
   const [shouldRenderAboveFoldCharts, setShouldRenderAboveFoldCharts] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
-  const [themeMode, setThemeMode] = useState<ThemeMode>('system');
-  const [iconMode, setIconMode] = useState<IconMode>('emoji');
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('duodash:theme');
+        if (stored === 'light' || stored === 'dark' || stored === 'system') return stored as ThemeMode;
+      } catch {}
+    }
+    return 'system';
+  });
+  const [iconMode, setIconMode] = useState<IconMode>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('duodash:icon-mode');
+        if (stored === 'emoji' || stored === 'svg') return stored as IconMode;
+      } catch {}
+    }
+    return 'emoji';
+  });
   const heatmapSentinelRef = useRef<HTMLDivElement | null>(null);
   const dashboardRef = useRef<HTMLDivElement | null>(null);
   const captureRef = useRef<HTMLDivElement | null>(null);
   const cardRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('duodash:theme');
-      if (stored === 'light' || stored === 'dark' || stored === 'system') {
-        setThemeMode(stored);
-      }
-      const storedIconMode = localStorage.getItem('duodash:icon-mode');
-      if (storedIconMode === 'emoji' || storedIconMode === 'svg') {
-        setIconMode(storedIconMode);
-      }
-    } catch {
-      // ignore storage errors
-    }
-  }, []);
 
   useEffect(() => {
     if (typeof document === 'undefined') return;
@@ -281,6 +282,7 @@ export function DuoDashApp(): React.ReactElement {
     async function loadData(): Promise<void> {
       try {
         let hasLocalCache = false;
+        let isFresh = false;
         try {
           const cached = localStorage.getItem('duodash:userData');
           const cachedTs = localStorage.getItem('duodash:userDataTs');
@@ -289,10 +291,21 @@ export function DuoDashApp(): React.ReactElement {
             setIsConfigured(true);
             setShowLogin(false);
             hasLocalCache = true;
-            if (cachedTs) setLastUpdated(Number(cachedTs) || null);
+            if (cachedTs) {
+              const ts = Number(cachedTs);
+              setLastUpdated(ts || null);
+              // Check if cache is less than 5 minutes old
+              isFresh = Date.now() - ts < 5 * 60 * 1000;
+            }
           }
         } catch {
           // ignore cache errors
+        }
+
+        // If we have a fresh local cache, skip the backend fetch to prevent rate limits
+        if (hasLocalCache && isFresh) {
+          setLoading(false);
+          return;
         }
 
         await new Promise<void>(resolve => setTimeout(resolve, 0));
@@ -539,7 +552,7 @@ export function DuoDashApp(): React.ReactElement {
           userData={userData}
           cardRef={cardRef}
           dashboardRef={dashboardRef}
-          onPrepareFull={() => {}}
+          onPrepareFull={() => setShouldRenderHeatmap(true)}
           iconMode={iconMode}
         />
       )}

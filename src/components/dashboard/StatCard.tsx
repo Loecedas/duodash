@@ -24,7 +24,7 @@ interface StatCardProps {
   isLargeText?: boolean;
 }
 
-export function StatCard({
+export const StatCard = React.memo(function StatCard({
   iconName,
   iconMode,
   value,
@@ -54,6 +54,6 @@ export function StatCard({
       <div className="text-xs font-bold text-gray-500">{label}</div>
     </div>
   );
-}
+});
 
 export default StatCard;

@@ -8,7 +8,7 @@ interface TodayOverviewProps {
   iconMode: IconMode;
 }
 
-export function TodayOverview({ userData, seq, iconMode }: TodayOverviewProps): React.ReactElement {
+export const TodayOverview = React.memo(function TodayOverview({ userData, seq, iconMode }: TodayOverviewProps): React.ReactElement {
   const todayTime = userData?.dailyTimeHistory?.length
     ? userData.dailyTimeHistory[userData.dailyTimeHistory.length - 1].time || '-'
     : '-';
@@ -90,6 +90,6 @@ export function TodayOverview({ userData, seq, iconMode }: TodayOverviewProps): 
       </div>
     </div>
   );
-}
+});
 
 export default TodayOverview;

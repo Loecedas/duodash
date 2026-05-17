@@ -36,14 +36,14 @@ function toLocalDateStr(d: Date): string {
   }
 }
 
-function getColor(xp: number, maxXp: number): string {
-  if (xp < 0) return 'transparent';
-  if (xp === 0) return '#EBEDF0';
+function getColorClass(xp: number, maxXp: number): string {
+  if (xp < 0) return 'bg-transparent';
+  if (xp === 0) return 'bg-[#EBEDF0] dark:bg-slate-800';
   const intensity = Math.min(xp / maxXp, 1);
-  if (intensity < 0.25) return '#9BE9A8';
-  if (intensity < 0.5) return '#40C463';
-  if (intensity < 0.75) return DuoColors.featherGreen;
-  return '#216E39';
+  if (intensity < 0.25) return 'bg-[#9BE9A8] dark:bg-[#1f5a2e]';
+  if (intensity < 0.5) return 'bg-[#40C463] dark:bg-[#2c8a41]';
+  if (intensity < 0.75) return 'bg-[#58cc02] dark:bg-[#46a302]';
+  return 'bg-[#216E39] dark:bg-[#1a5a2a]';
 }
 
 export function HeatmapChart({ data, forceViewMode }: HeatmapChartProps): React.ReactElement {
@@ -388,10 +388,9 @@ export function HeatmapChart({ data, forceViewMode }: HeatmapChartProps): React.
                 return (
                   <div
                     key={`${weekIdx}-${dayIdx}`}
-                    className={`heatmap-cell w-full rounded-sm transition-all ${isValidDay ? 'cursor-pointer hover:ring-2 hover:ring-[#58cc02]' : ''} ${tooltip?.date === day.dateStr ? 'ring-2 ring-[#1cb0f6] ring-offset-1 z-10' : 'z-0'}`}
+                    className={`heatmap-cell w-full rounded-sm transition-all ${isValidDay ? 'cursor-pointer hover:ring-2 hover:ring-[#58cc02]' : ''} ${tooltip?.date === day.dateStr ? 'ring-2 ring-[#1cb0f6] ring-offset-1 z-10' : 'z-0'} ${getColorClass(day.xp, maxXp)}`}
                     data-heatmap-date={day.dateStr || undefined}
                     style={{
-                      backgroundColor: getColor(day.xp, maxXp),
                       gridColumn: weekIdx + 2,
                       gridRow: dayIdx + 1,
                       paddingBottom: '100%',
@@ -494,8 +493,8 @@ export function HeatmapChart({ data, forceViewMode }: HeatmapChartProps): React.
             </div>
             <div className="flex items-center gap-1 text-xs text-gray-500">
               <span>少</span>
-              {['#EBEDF0', '#9BE9A8', '#40C463', DuoColors.featherGreen, '#216E39'].map((color, i) => (
-                <div key={i} className="w-[10px] h-[10px] rounded-sm" style={{ backgroundColor: color }} />
+              {['bg-[#EBEDF0] dark:bg-slate-800', 'bg-[#9BE9A8] dark:bg-[#1f5a2e]', 'bg-[#40C463] dark:bg-[#2c8a41]', 'bg-[#58cc02] dark:bg-[#46a302]', 'bg-[#216E39] dark:bg-[#1a5a2a]'].map((cls, i) => (
+                <div key={i} className={`w-[10px] h-[10px] rounded-sm ${cls}`} />
               ))}
               <span>多</span>
             </div>

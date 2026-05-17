@@ -16,6 +16,7 @@ const { title } = Astro.props;
       content="DuoDash - 多邻国学习数据可视化仪表盘，展示你的学习进度、连胜记录和 XP 历史"
     />
     <meta name="theme-color" content="#58cc02" />
+    <meta name="color-scheme" content="light dark" />
 
     <script is:inline>
       (() => {
@@ -164,17 +165,20 @@ const { title } = Astro.props;
       rel="preload"
       href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap"
       as="style"
+      crossorigin="anonymous"
     />
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap"
       media="print"
       onload="this.media='all'"
+      crossorigin="anonymous"
     />
     <noscript
       ><link
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap"
+        crossorigin="anonymous"
       /></noscript
     >
 
@@ -191,6 +195,14 @@ const { title } = Astro.props;
 </html>
 
 <style is:global>
+  /* 防止部分安卓系统（如 MIUI、Chrome Auto Dark）强制反色 */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      /* Dummy variable to let browser know we support dark mode CSS natively */
+      --color-scheme-supported: 1;
+    }
+  }
+
   :root {
     color-scheme: light;
   }

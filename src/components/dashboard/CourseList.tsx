@@ -21,10 +21,13 @@ interface CourseListProps {
   iconMode: IconMode;
 }
 
-export function CourseList({ courses, seq, iconMode }: CourseListProps): React.ReactElement {
-  const sortedCourses = [...courses].sort((a, b) => b.xp - a.xp);
-  const totalCourseXp = sortedCourses.reduce((acc, c) => acc + c.xp, 0);
-  const maxCourseXp = sortedCourses[0]?.xp ?? 0;
+export const CourseList = React.memo(function CourseList({ courses, seq, iconMode }: CourseListProps): React.ReactElement {
+  const { sortedCourses, totalCourseXp, maxCourseXp } = React.useMemo(() => {
+    const sorted = [...courses].sort((a, b) => b.xp - a.xp);
+    const total = sorted.reduce((acc, c) => acc + c.xp, 0);
+    const max = sorted[0]?.xp ?? 0;
+    return { sortedCourses: sorted, totalCourseXp: total, maxCourseXp: max };
+  }, [courses]);
 
   const getCourseIcon = (course: Course): AppIconName => {
     if (course.subject === 'chess') return 'chess';
@@ -98,6 +101,6 @@ export function CourseList({ courses, seq, iconMode }: CourseListProps): React.R
       )}
     </div>
   );
-}
+});
 
 export default CourseList;

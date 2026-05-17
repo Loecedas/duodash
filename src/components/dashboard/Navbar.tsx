@@ -26,7 +26,7 @@ function getUpdateStatusText(loading: boolean, lastUpdated: number | null, isSta
   return '尚未更新';
 }
 
-export function Navbar({
+export const Navbar = React.memo(function Navbar({
   loading,
   lastUpdated,
   isStale,
@@ -158,7 +158,7 @@ export function Navbar({
               aria-label={iconToggleTitle}
             >
               <AppIcon name={iconMode === 'emoji' ? 'shapes' : 'smile'} mode={iconMode} className="text-gray-700" />
-              <span className="hidden text-sm font-semibold text-gray-700 sm:inline">{iconToggleLabel}</span>
+              <span className="text-sm font-semibold text-gray-700">{iconToggleLabel}</span>
             </button>
             <button
               onClick={onRefresh}
@@ -175,6 +175,6 @@ export function Navbar({
       </div>
     </nav>
   );
-}
+});
 
 export default Navbar;

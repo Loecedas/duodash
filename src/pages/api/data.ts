@@ -98,9 +98,11 @@ export const GET: APIRoute = async ({ request }) => {
     let userData: any = { ...publicData };
     const userId = publicData.id || publicData.user_id;
 
-    // 有 JWT 时并行获取：XP 历史 + gems + leaderboard tier
+    // 有 JWT 时并行获取：XP 历史 + gems + leaderboard tier + ameba 数据
     if (decodedJwt && userId) {
-      const [xpResult, gemsResult, tierResult] = await Promise.all([
+      const amebaUrl = `${DUOLINGO_BASE_URL}/2023-05-23/users/${userId}?fields=courses,currentCourse,fromLanguage,learningLanguage,trackingProperties`;
+      
+      const [xpResult, gemsResult, tierResult, amebaResult] = await Promise.all([
         // XP 历史
         fetchWithTimeout(
           `${DUOLINGO_BASE_URL}/2017-06-30/users/${userId}/xp_summaries?startDate=1970-01-01`,
@@ -116,11 +118,10 @@ export const GET: APIRoute = async ({ request }) => {
           `${DUOLINGO_BASE_URL}/2017-06-30/users/${userId}?fields=trackingProperties`,
           authHeaders, 8000
         ),
+        // 4. 获取新科目数据 (Ameba Architecture)
+        fetchWithTimeout(amebaUrl, authHeaders, 8000)
       ]);
       
-      // 4. 获取新科目数据 (Ameba Architecture)
-      const amebaUrl = `${DUOLINGO_BASE_URL}/2023-05-23/users/${userId}?fields=courses,currentCourse,fromLanguage,learningLanguage,trackingProperties`;
-      const amebaResult = await fetchWithTimeout(amebaUrl, authHeaders, 8000);
       if (amebaResult.status === 200 && amebaResult.data) {
         const amebaData = amebaResult.data as any;
         if (amebaData.courses) userData._amebaCourses = amebaData.courses;
